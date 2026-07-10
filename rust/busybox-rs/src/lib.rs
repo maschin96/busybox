@@ -5,5 +5,5 @@
 //! The C build remains authoritative. Rust applets are introduced behind a
 //! C-compatible ABI and linked into BusyBox as a static library.
 
-pub mod ffi;
 mod coreutils;
+pub mod ffi;
