@@ -50,7 +50,12 @@ pub const APPLET_USAGE_ERROR: c_int = 1;
 ///
 /// Panics must not unwind across the C boundary. This helper is intentionally
 /// small until the migration decides on a repo-wide panic policy.
-pub fn run_applet(
+///
+/// # Safety
+///
+/// `argv` must follow BusyBox's normal applet ABI: it points to an array of at
+/// least `argc` C string pointers for the duration of the call.
+pub unsafe fn run_applet(
     argc: c_int,
     argv: *mut *mut c_char,
     body: impl FnOnce(RawArgv) -> c_int,

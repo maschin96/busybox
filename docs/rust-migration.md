@@ -36,6 +36,8 @@ int <applet>_main(int argc, char **argv);
 
 Rust implementations should use `busybox_rs::ffi::run_applet` or an equivalent
 wrapper so argument validation and future panic handling stay centralized.
+The Rust ABI functions are `unsafe extern "C"` because the C dispatcher owns
+the validity of `argc` and `argv`.
 
 Rules:
 
