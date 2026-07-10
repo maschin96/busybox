@@ -19,31 +19,7 @@ jobs:
       - name: Build default BusyBox
         run: |
           make allnoconfig
-          python3 - <<'PY'
-          from pathlib import Path
-
-          config = Path(".config")
-          text = config.read_text()
-
-          def set_bool(name, value):
-              disabled = f"# CONFIG_{name} is not set"
-              enabled = f"CONFIG_{name}=y"
-              if value:
-                  if disabled in text:
-                      return text.replace(disabled, enabled)
-                  if enabled in text:
-                      return text
-              else:
-                  if enabled in text:
-                      return text.replace(enabled, disabled)
-                  if disabled in text:
-                      return text
-              raise SystemExit(f"CONFIG_{name} not found")
-
-          for symbol in ["BUSYBOX", "TRUE", "FALSE"]:
-              text = set_bool(symbol, True)
-          config.write_text(text)
-          PY
+          python3 scripts/ci_set_config.py BUSYBOX=y TRUE=y FALSE=y
           yes "" | make oldconfig
           make busybox
 
@@ -52,6 +28,13 @@ jobs:
           ./busybox true
           if ./busybox false; then
             echo "false returned success"
+            exit 1
+          fi
+          ln -sf busybox true
+          ln -sf busybox false
+          ./true
+          if ./false; then
+            echo "false symlink returned success"
             exit 1
           fi
 
@@ -89,35 +72,23 @@ jobs:
       - name: Enable Rust applets
         run: |
           make allnoconfig
-          python3 - <<'PY'
-          from pathlib import Path
-
-          config = Path(".config")
-          text = config.read_text()
-
-          def set_bool(name, value):
-              disabled = f"# CONFIG_{name} is not set"
-              enabled = f"CONFIG_{name}=y"
-              if value:
-                  if disabled in text:
-                      return text.replace(disabled, enabled)
-                  if enabled in text:
-                      return text
-              else:
-                  if enabled in text:
-                      return text.replace(enabled, disabled)
-                  if disabled in text:
-                      return text
-              raise SystemExit(f"CONFIG_{name} not found")
-
-          for symbol in ["BUSYBOX", "TRUE", "FEATURE_RUST_APPLETS"]:
-              text = set_bool(symbol, True)
-          config.write_text(text)
-          PY
+          python3 scripts/ci_set_config.py BUSYBOX=y TRUE=y FALSE=y FEATURE_RUST_APPLETS=y
           yes "" | make oldconfig
 
       - name: Build BusyBox with Rust applets
         run: make busybox
 
       - name: Smoke test Rust applet path
-        run: ./busybox true
+        run: |
+          ./busybox true
+          if ./busybox false; then
+            echo "rust false returned success"
+            exit 1
+          fi
+          ln -sf busybox true
+          ln -sf busybox false
+          ./true
+          if ./false; then
+            echo "rust false symlink returned success"
+            exit 1
+          fi

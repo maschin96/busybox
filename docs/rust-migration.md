@@ -76,6 +76,8 @@ Current status:
 
 - `true` has an opt-in Rust implementation behind `FEATURE_RUST_APPLETS`.
   The Rust path is intentionally registered as a normal applet, not NOFORK.
+- `false` has an opt-in Rust implementation behind `FEATURE_RUST_APPLETS`.
+  The Rust path is intentionally registered as a normal applet, not NOFORK.
 
 ## Verification expectations
 
