@@ -12,7 +12,8 @@
 //config:	help
 //config:	true returns an exit code of TRUE (0).
 
-//applet:IF_TRUE(APPLET_NOFORK(true, true, BB_DIR_BIN, BB_SUID_DROP, true))
+//applet:IF_TRUE(IF_FEATURE_RUST_APPLETS(APPLET(true, BB_DIR_BIN, BB_SUID_DROP)))
+//applet:IF_TRUE(IF_NOT_FEATURE_RUST_APPLETS(APPLET_NOFORK(true, true, BB_DIR_BIN, BB_SUID_DROP, true)))
 
 //kbuild:lib-$(CONFIG_TRUE) += true.o
 
@@ -29,10 +30,18 @@
 
 #include "libbb.h"
 
-/* This is a NOFORK applet. Be very careful! */
+/* The C implementation is NOFORK. The Rust implementation is not. */
 
 int true_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+#if ENABLE_FEATURE_RUST_APPLETS
+int rust_true_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int true_main(int argc, char **argv)
+{
+	return rust_true_main(argc, argv);
+}
+#else
 int true_main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM)
 {
 	return EXIT_SUCCESS;
 }
+#endif

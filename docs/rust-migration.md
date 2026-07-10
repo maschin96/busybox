@@ -22,6 +22,8 @@ specific area is explicitly migrated.
   existing BusyBox binary.
 - The C build remains authoritative. Adding the workspace must not change C-only
   builds until Kbuild integration is intentionally added.
+- Rust applets are currently opt-in through `FEATURE_RUST_APPLETS`. Default
+  configurations continue to use the C implementations.
 
 ## Applet ABI
 
@@ -67,6 +69,11 @@ supporting infrastructure:
 
 High-risk components are explicitly out of scope for the first wave: `ash`,
 `hush`, TLS, init, mount, mdev, networking, archive, and compression code.
+
+Current status:
+
+- `true` has an opt-in Rust implementation behind `FEATURE_RUST_APPLETS`.
+  The Rust path is intentionally registered as a normal applet, not NOFORK.
 
 ## Verification expectations
 

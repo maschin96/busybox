@@ -6,3 +6,4 @@
 //! C-compatible ABI and linked into BusyBox as a static library.
 
 pub mod ffi;
+mod coreutils;
