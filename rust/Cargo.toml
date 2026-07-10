@@ -1,0 +1,14 @@
+[workspace]
+members = ["busybox-rs"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "GPL-2.0-only"
+repository = "https://github.com/maschin96/busybox"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

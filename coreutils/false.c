@@ -12,7 +12,8 @@
 //config:	help
 //config:	false returns an exit code of FALSE (1).
 
-//applet:IF_FALSE(APPLET_NOFORK(false, false, BB_DIR_BIN, BB_SUID_DROP, false))
+//applet:IF_FALSE(IF_FEATURE_RUST_APPLETS(APPLET(false, BB_DIR_BIN, BB_SUID_DROP)))
+//applet:IF_FALSE(IF_NOT_FEATURE_RUST_APPLETS(APPLET_NOFORK(false, false, BB_DIR_BIN, BB_SUID_DROP, false)))
 
 //kbuild:lib-$(CONFIG_FALSE) += false.o
 
@@ -29,10 +30,18 @@
 
 #include "libbb.h"
 
-/* This is a NOFORK applet. Be very careful! */
+/* The C implementation is NOFORK. The Rust implementation is not. */
 
 int false_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+#if ENABLE_FEATURE_RUST_APPLETS
+int rust_false_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int false_main(int argc, char **argv)
+{
+	return rust_false_main(argc, argv);
+}
+#else
 int false_main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM)
 {
 	return EXIT_FAILURE;
 }
+#endif

@@ -1,0 +1,94 @@
+name: Rust migration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - "codex/**"
+
+jobs:
+  busybox-default:
+    name: BusyBox default config
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build default BusyBox
+        run: |
+          make allnoconfig
+          python3 scripts/ci_set_config.py BUSYBOX=y TRUE=y FALSE=y
+          yes "" | make oldconfig
+          make busybox
+
+      - name: Smoke test default BusyBox
+        run: |
+          ./busybox true
+          if ./busybox false; then
+            echo "false returned success"
+            exit 1
+          fi
+          ln -sf busybox true
+          ln -sf busybox false
+          ./true
+          if ./false; then
+            echo "false symlink returned success"
+            exit 1
+          fi
+
+  rust-crate:
+    name: Rust crate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        run: rustup toolchain install 1.79.0 --profile minimal --component rustfmt --component clippy
+
+      - name: Check Rust formatting
+        run: cargo +1.79.0 fmt --manifest-path rust/Cargo.toml -- --check
+
+      - name: Lint Rust crate
+        run: cargo +1.79.0 clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings
+
+      - name: Build Rust crate
+        run: cargo +1.79.0 build --manifest-path rust/Cargo.toml --release
+
+  busybox-rust-applets:
+    name: BusyBox with Rust applets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        run: rustup toolchain install 1.79.0 --profile minimal
+
+      - name: Enable Rust applets
+        run: |
+          make allnoconfig
+          python3 scripts/ci_set_config.py BUSYBOX=y TRUE=y FALSE=y FEATURE_RUST_APPLETS=y
+          yes "" | make oldconfig
+
+      - name: Build BusyBox with Rust applets
+        run: make busybox
+
+      - name: Smoke test Rust applet path
+        run: |
+          ./busybox true
+          if ./busybox false; then
+            echo "rust false returned success"
+            exit 1
+          fi
+          ln -sf busybox true
+          ln -sf busybox false
+          ./true
+          if ./false; then
+            echo "rust false symlink returned success"
+            exit 1
+          fi

@@ -50,6 +50,17 @@ config FEDORA_COMPAT
 	and so does uname -i unless machine type is i486/i586/i686 -
 	then uname -i shows "i386".
 
+config FEATURE_RUST_APPLETS
+	bool "Enable experimental Rust applet implementations"
+	default n
+	help
+	Enable applet implementations written in Rust.
+
+	This is an experimental migration path. Enabling it requires a Rust
+	toolchain compatible with rust-toolchain.toml. Applets migrated to
+	Rust are linked into the existing BusyBox binary through the normal
+	applet dispatcher.
+
 config INCLUDE_SUSv2
 	bool "Enable obsolete features removed before SUSv3"
 	default y

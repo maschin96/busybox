@@ -572,6 +572,12 @@ libs-y1		:= $(patsubst %/, %/lib.a, $(libs-y))
 libs-y2		:= $(patsubst %/, %/built-in.o, $(libs-y))
 libs-y		:= $(libs-y1) $(libs-y2)
 
+rust-libs-y :=
+ifeq ($(CONFIG_FEATURE_RUST_APPLETS),y)
+rust-target-dir := $(objtree)/rust/target
+rust-libs-y += $(rust-target-dir)/release/libbusybox_rs.a
+endif
+
 # Build busybox
 # ---------------------------------------------------------------------------
 # busybox is build from the objects selected by $(busybox-init) and
@@ -599,7 +605,7 @@ libs-y		:= $(libs-y1) $(libs-y2)
 #
 # System.map is generated to document addresses of all kernel symbols
 
-busybox-all  := $(core-y) $(libs-y)
+busybox-all  := $(core-y) $(libs-y) $(rust-libs-y)
 
 # Rule to link busybox - also used during CONFIG_KALLSYMS
 # May be overridden by arch/$(ARCH)/Makefile
@@ -610,7 +616,7 @@ quiet_cmd_busybox__ ?= LINK    $@
       "$(CFLAGS) $(CFLAGS_busybox)" \
       "$(LDFLAGS) $(EXTRA_LDFLAGS)" \
       "$(core-y)" \
-      "$(libs-y)" \
+      "$(libs-y) $(rust-libs-y)" \
       "$(LDLIBS)" \
       "$(CONFIG_EXTRA_LDLIBS)" \
       && $(srctree)/scripts/generate_BUFSIZ.sh --post include/common_bufsiz.h
@@ -731,7 +737,11 @@ endif
 
 # The actual objects are generated when descending,
 # make sure no implicit rule kicks in
-$(sort $(busybox-all)): $(busybox-dirs) ;
+$(sort $(filter-out $(rust-libs-y),$(busybox-all))): $(busybox-dirs) ;
+
+$(rust-libs-y): FORCE
+	$(Q)CARGO_TARGET_DIR=$(rust-target-dir) cargo build \
+		--manifest-path $(srctree)/rust/Cargo.toml --release
 
 # Handle descending into subdirectories listed in $(busybox-dirs)
 # Preset locale variables to speed up the build process. Limit locale
