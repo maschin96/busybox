@@ -807,12 +807,25 @@ static NOINLINE int parse_reply(const unsigned char *msg, size_t len)
 				//printf("TXT record too short\n");
 				return -1;
 			}
-			n = *(unsigned char *)ns_rr_rdata(rr);
-			if (n > 0) {
+			cp = ns_rr_rdata(rr);
+			{
+				const unsigned char *end = cp + rdlen;
+				char *dst = dname;
+
 				memset(dname, 0, sizeof(dname));
-				memcpy(dname, ns_rr_rdata(rr) + 1, n);
-				printf("%s\ttext = \"%s\"\n", ns_rr_name(rr), dname);
+				while (cp < end) {
+					n = *cp++;
+					if (n > end - cp)
+						return -1;
+					if (n > (sizeof(dname) - 1) - (dst - dname))
+						return -1;
+					memcpy(dst, cp, n);
+					cp += n;
+					dst += n;
+				}
 			}
+			if (dname[0])
+				printf("%s\ttext = \"%s\"\n", ns_rr_name(rr), dname);
 			break;
 
 		case ns_t_srv:

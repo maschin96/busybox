@@ -12,9 +12,13 @@
 #define STR(s) STR1(s)
 
 #define NEED_SHA512 (ENABLE_SHA512SUM || ENABLE_USE_BB_CRYPT_SHA)
+#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+# define SHA_HWACCEL_SHA_NI 1
+#else
+# define SHA_HWACCEL_SHA_NI 0
+#endif
 
-#if ENABLE_SHA1_HWACCEL || ENABLE_SHA256_HWACCEL
-# if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+#if (ENABLE_SHA1_HWACCEL || ENABLE_SHA256_HWACCEL) && SHA_HWACCEL_SHA_NI
 static void cpuid_eax_ebx_ecx(unsigned *eax, unsigned *ebx, unsigned *ecx, unsigned *edx)
 {
 	asm ("cpuid"
@@ -49,7 +53,6 @@ struct ASM_expects_76_shaNI { char t[1 - 2*(offsetof(sha256_ctx_t, hash) != 76)]
 #  if defined(__x86_64__)
 struct ASM_expects_80_shaNI { char t[1 - 2*(offsetof(sha256_ctx_t, hash) != 80)]; };
 #  endif
-# endif
 #endif
 
 /* gcc 4.2.1 optimizes rotr64 better with inline than with macro
@@ -1190,8 +1193,7 @@ void FAST_FUNC sha1_begin(sha1_ctx_t *ctx)
 	ctx->hash[4] = 0xc3d2e1f0;
 	ctx->total64 = 0;
 	ctx->process_block = sha1_process_block64;
-#if ENABLE_SHA1_HWACCEL
-# if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+#if ENABLE_SHA1_HWACCEL && SHA_HWACCEL_SHA_NI
 	{
 		int ni = shaNI;
 		if (!ni)
@@ -1199,7 +1201,6 @@ void FAST_FUNC sha1_begin(sha1_ctx_t *ctx)
 		if (ni > 0)
 			ctx->process_block = sha1_process_block64_shaNI;
 	}
-# endif
 #endif
 }
 
@@ -1242,8 +1243,7 @@ void FAST_FUNC sha256_begin(sha256_ctx_t *ctx)
 	memcpy(&ctx->total64, init256, sizeof(init256));
 	/*ctx->total64 = 0; - done by prepending two 32-bit zeros to init256 */
 	ctx->process_block = sha256_process_block64;
-#if ENABLE_SHA256_HWACCEL
-# if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+#if ENABLE_SHA256_HWACCEL && SHA_HWACCEL_SHA_NI
 	{
 		int ni = shaNI;
 		if (!ni)
@@ -1251,7 +1251,6 @@ void FAST_FUNC sha256_begin(sha256_ctx_t *ctx)
 		if (ni > 0)
 			ctx->process_block = sha256_process_block64_shaNI;
 	}
-# endif
 #endif
 }
 
@@ -1312,7 +1311,7 @@ unsigned FAST_FUNC sha1_end(sha1_ctx_t *ctx, void *resbuf)
 
 	hash_size = 8;
 	if (ctx->process_block == sha1_process_block64
-#if ENABLE_SHA1_HWACCEL
+#if ENABLE_SHA1_HWACCEL && SHA_HWACCEL_SHA_NI
 	 || ctx->process_block == sha1_process_block64_shaNI
 #endif
 	) {

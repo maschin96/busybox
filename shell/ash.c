@@ -10283,10 +10283,10 @@ pstrcmp1(const void *a, const void *b)
 {
 	return strcmp((char*)a, *(char**)b + 1);
 }
-static struct builtincmd *
+static const struct builtincmd *
 find_builtin(const char *name)
 {
-	struct builtincmd *bp;
+	const struct builtincmd *bp;
 
 	bp = bsearch(
 		name, builtintab, ARRAY_SIZE(builtintab), sizeof(builtintab[0]),
@@ -12415,11 +12415,12 @@ decode_dollar_squote(void)
 	static const char C_escapes[] ALIGN1 = "nrbtfav""x\\01234567";
 	int c, cnt;
 	char *p;
+	const char *esc;
 	char buf[4];
 
 	c = pgetc();
-	p = strchr(C_escapes, c);
-	if (p) {
+	esc = strchr(C_escapes, c);
+	if (esc) {
 		buf[0] = c;
 		p = buf;
 		cnt = 3;
@@ -13795,7 +13796,7 @@ find_command(char *name, struct cmdentry *entry, int act, const char *path)
 	struct stat statb;
 	int e;
 	int updatetbl;
-	struct builtincmd *bcmd;
+	const struct builtincmd *bcmd;
 	int len;
 
 	/* If name contains a slash, don't use PATH or hash table */

@@ -14,14 +14,14 @@
  */
 char* FAST_FUNC strrstr(const char *haystack, const char *needle)
 {
-	char *r = NULL;
+	const char *r = NULL;
 
 	if (!needle[0])
 		return (char*)haystack + strlen(haystack);
 	while (1) {
-		char *p = strstr(haystack, needle);
+		const char *p = strstr(haystack, needle);
 		if (!p)
-			return r;
+			return (char*)r;
 		r = p;
 		haystack = p + 1;
 	}

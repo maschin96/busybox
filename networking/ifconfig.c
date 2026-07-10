@@ -433,12 +433,12 @@ int ifconfig_main(int argc UNUSED_PARAM, char **argv)
 						else {
 							len_and_sockaddr *lsa;
 #if ENABLE_FEATURE_IPV6
-							char *prefix;
+							const char *prefix;
 							int prefix_len = 0;
 							prefix = strchr(host, '/');
 							if (prefix) {
 								prefix_len = xatou_range(prefix + 1, 0, 128);
-								*prefix = '\0';
+								*(char*)prefix = '\0';
 							}
  resolve:
 #endif
@@ -448,7 +448,7 @@ int ifconfig_main(int argc UNUSED_PARAM, char **argv)
 /* TODO: we do not support "ifconfig eth0 up 1.2.3.4/17".
  * For now, just make it fail instead of silently ignoring "/17" part:
  */
-								*prefix = '/';
+								*(char*)prefix = '/';
 								goto resolve;
 							}
 							if (lsa->u.sa.sa_family == AF_INET6) {

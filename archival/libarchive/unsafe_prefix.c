@@ -9,7 +9,7 @@ const char* FAST_FUNC strip_unsafe_prefix(const char *str)
 {
 	const char *cp = str;
 	while (1) {
-		char *cp2;
+		const char *cp2;
 		if (*cp == '/') {
 			cp++;
 			continue;

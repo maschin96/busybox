@@ -361,7 +361,8 @@ void FAST_FUNC xsetenv(const char *key, const char *value)
 void FAST_FUNC bb_unsetenv(const char *var)
 {
 	char onstack[128 - 16]; /* smaller stack setup code on x86 */
-	char *tp;
+	const char *tp;
+	char *to_free = NULL;
 
 	tp = strchr(var, '=');
 	if (tp) {
@@ -378,11 +379,12 @@ void FAST_FUNC bb_unsetenv(const char *var)
 			var = onstack;
 		} else {
 			/* unlikely: very long var name */
-			var = tp = xstrndup(var, sz);
+			to_free = xstrndup(var, sz);
+			var = to_free;
 		}
 	}
 	unsetenv(var);
-	free(tp);
+	free(to_free);
 }
 
 void FAST_FUNC bb_unsetenv_and_free(char *var)

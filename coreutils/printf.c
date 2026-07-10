@@ -354,7 +354,8 @@ static char **print_formatted(char *f, char **argv, int *conv_err)
 			/* Add "ll" if integer modifier, then print */
 			{
 				static const char format_chars[] ALIGN1 = "diouxXfeEgGcs";
-				char *p = strchr(format_chars, *f);
+				const char *p = strchr(format_chars, *f);
+				char *allocated_direc = NULL;
 				/* needed - try "printf %" without it */
 				if (p == NULL || *f == '\0') {
 					bb_error_msg("%s: invalid format", direc_start);
@@ -364,16 +365,14 @@ static char **print_formatted(char *f, char **argv, int *conv_err)
 				++direc_length;
 				if (p - format_chars <= 5) {
 					/* it is one of "diouxX" */
-					p = xmalloc(direc_length + 3);
-					memcpy(p, direc_start, direc_length);
-					p[direc_length + 1] = p[direc_length - 1];
-					p[direc_length - 1] = 'l';
-					p[direc_length] = 'l';
-					//bb_error_msg("<%s>", p);
+					allocated_direc = xmalloc(direc_length + 3);
+					memcpy(allocated_direc, direc_start, direc_length);
+					allocated_direc[direc_length + 1] = allocated_direc[direc_length - 1];
+					allocated_direc[direc_length - 1] = 'l';
+					allocated_direc[direc_length] = 'l';
+					//bb_error_msg("<%s>", allocated_direc);
 					direc_length += 2;
-					direc_start = p;
-				} else {
-					p = NULL;
+					direc_start = allocated_direc;
 				}
 				if (*argv) {
 					print_direc(direc_start, direc_length, field_width,
@@ -383,7 +382,7 @@ static char **print_formatted(char *f, char **argv, int *conv_err)
 								precision, "");
 				}
 				*conv_err |= errno;
-				free(p);
+				free(allocated_direc);
 			}
 			break;
 		case '\\':

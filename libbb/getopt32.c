@@ -563,8 +563,11 @@ vgetopt32(char **argv, const char *applet_opts, const char *applet_long_options,
 			if (on_off->param_type == PARAM_LIST) {
 				llist_add_to_end((llist_t **)(on_off->optarg), optarg);
 			} else if (on_off->param_type == PARAM_INT) {
+				unsigned n;
 //TODO: xatoi_positive indirectly pulls in printf machinery
-				*(unsigned*)(on_off->optarg) = xatoi_positive(optarg);
+				n = xatoi_positive(optarg);
+				if (on_off->optarg)
+					*(unsigned*)(on_off->optarg) = n;
 			} else if (on_off->optarg) {
 				*(char **)(on_off->optarg) = optarg;
 			}

@@ -180,7 +180,7 @@ static NOINLINE void INET_setroute(int action, char **args)
 
 	{
 		const char *target = *args++;
-		char *prefix;
+		const char *prefix;
 
 		/* recognize x.x.x.x/mask format. */
 		prefix = strchr(target, '/');
@@ -189,7 +189,7 @@ static NOINLINE void INET_setroute(int action, char **args)
 
 			prefix_len = xatoul_range(prefix+1, 0, 32);
 			mask_in_addr(*rt) = htonl( ~(0xffffffffUL >> prefix_len));
-			*prefix = '\0';
+			*(char*)prefix = '\0';
 #if HAVE_NEW_ADDRT
 			rt->rt_genmask.sa_family = AF_INET;
 #endif
@@ -205,7 +205,7 @@ static NOINLINE void INET_setroute(int action, char **args)
 		}
 		if (prefix) {
 			/* do not destroy prefix for process args */
-			*prefix = '/';
+			*(char*)prefix = '/';
 		}
 	}
 
@@ -360,10 +360,10 @@ static NOINLINE void INET6_setroute(int action, char **args)
 			prefix_len = 0;
 			memset(&sa6, 0, sizeof(sa6));
 		} else {
-			char *cp;
+			const char *cp;
 			cp = strchr(target, '/'); /* Yes... const to non is ok. */
 			if (cp) {
-				*cp = '\0';
+				*(char*)cp = '\0';
 				prefix_len = xatoul_range(cp + 1, 0, 128);
 			} else {
 				prefix_len = 128;
