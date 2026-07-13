@@ -8,10 +8,6 @@ if ! docker image inspect "$image" >/dev/null 2>&1; then
 	docker buildx build --load -f "$root/Dockerfile.build" -t "$image" "$root"
 fi
 
-if [ "$#" -eq 0 ]; then
-	set -- defconfig all
-fi
-
 docker run --rm \
 	-v "$root:/src:ro" \
 	"$image" \
@@ -23,11 +19,5 @@ docker run --rm \
 			--exclude "rust/target" \
 			--exclude "__pycache__" \
 			/src/ /work/src/
-		for target do
-			if [ "$target" = all ]; then
-				make -j"$(nproc)"
-			else
-				make "$target"
-			fi
-		done
+		python3 scripts/compare_rust_applets.py "$@"
 	' sh "$@"

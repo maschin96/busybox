@@ -41,10 +41,20 @@ def parse_assignment(arg: str) -> tuple[str, bool]:
 
 
 def main(argv: list[str]) -> int:
-    if not argv:
-        raise SystemExit("usage: scripts/ci_set_config.py SYMBOL=y [SYMBOL=n ...]")
-
     config = Path(".config")
+    if argv[:1] == ["--config"]:
+        if len(argv) < 3:
+            raise SystemExit(
+                "usage: scripts/ci_set_config.py [--config PATH] SYMBOL=y [SYMBOL=n ...]"
+            )
+        config = Path(argv[1])
+        argv = argv[2:]
+
+    if not argv:
+        raise SystemExit(
+            "usage: scripts/ci_set_config.py [--config PATH] SYMBOL=y [SYMBOL=n ...]"
+        )
+
     text = config.read_text()
     for arg in argv:
         name, enabled = parse_assignment(arg)

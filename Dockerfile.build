@@ -6,11 +6,20 @@ RUN apt-get update \
     bison \
     build-essential \
     ca-certificates \
+    curl \
     flex \
     libncurses-dev \
     perl \
     python3 \
     rsync \
  && rm -rf /var/lib/apt/lists/*
+
+ENV RUSTUP_HOME=/opt/rustup
+ENV CARGO_HOME=/opt/cargo
+ENV PATH=/opt/cargo/bin:$PATH
+
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs \
+ | sh -s -- -y --profile minimal --default-toolchain 1.79.0 \
+ && chmod -R a+rX /opt/rustup /opt/cargo
 
 WORKDIR /work/src

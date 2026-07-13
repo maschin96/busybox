@@ -137,6 +137,22 @@ behavior for:
 The existing testsuite remains the acceptance baseline. New comparison tooling
 should be added before migrating applets with meaningful I/O behavior.
 
+`scripts/compare_rust_applets.py` is the reusable C-vs-Rust comparison harness
+for the first applet wave. By default it builds isolated C and Rust BusyBox
+variants under `build/rust-compare/`, runs the currently ported Rust applets
+(`true` and `false`) through direct `busybox <applet>` dispatch and symlink
+dispatch, and compares stdout, stderr, and exit code. Differences are printed
+with the applet, invocation shape, arguments, and unified stdout/stderr diffs so
+the failing case can be rerun.
+
+To compare existing binaries instead of rebuilding them:
+
+```sh
+python3 scripts/compare_rust_applets.py \
+  --c-busybox /path/to/c/busybox \
+  --rust-busybox /path/to/rust/busybox
+```
+
 For agent-assisted work, verification notes should be written so another
 reviewer can repeat the important checks without reconstructing the agent's
 private context. At minimum, record the configuration used, the commands run,
