@@ -7,3 +7,4 @@
 
 mod coreutils;
 pub mod ffi;
+pub mod libbb;

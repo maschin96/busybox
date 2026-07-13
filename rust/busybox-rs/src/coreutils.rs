@@ -1,11 +1,9 @@
 use core::ffi::{c_char, c_int};
-use std::env;
 use std::ffi::CStr;
-use std::io::{self, Write};
-use std::os::unix::ffi::OsStrExt;
 
 use crate::ffi::run_applet;
 use crate::ffi::RawArgv;
+use crate::libbb;
 
 const EXIT_SUCCESS: c_int = 0;
 const EXIT_FAILURE: c_int = 1;
@@ -56,8 +54,7 @@ fn argv_bytes(argv: RawArgv) -> Option<Vec<Vec<u8>>> {
 }
 
 fn write_line(bytes: &[u8]) -> c_int {
-    let mut stdout = io::stdout().lock();
-    if stdout.write_all(bytes).is_err() || stdout.write_all(b"\n").is_err() {
+    if libbb::full_write(1, bytes).is_err() || libbb::full_write(1, b"\n").is_err() {
         return EXIT_FAILURE;
     }
     EXIT_SUCCESS
@@ -196,8 +193,8 @@ fn dirname_of(path: &[u8]) -> Vec<u8> {
 }
 
 fn pwd_main(_: RawArgv) -> c_int {
-    match env::current_dir() {
-        Ok(path) => write_line(path.as_os_str().as_bytes()),
-        Err(_) => EXIT_FAILURE,
+    match libbb::current_dir() {
+        Some(path) => write_line(path.as_bytes()),
+        None => EXIT_FAILURE,
     }
 }

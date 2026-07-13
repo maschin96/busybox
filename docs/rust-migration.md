@@ -106,6 +106,10 @@ Rules:
 - `NOFORK` and `NOEXEC` must not be enabled for a Rust applet until allocator,
   stdio, panic, and process-global-state behavior are reviewed for that applet.
 
+The initial libbb bridge is specified in
+[rust-libbb-ffi.md](rust-libbb-ffi.md). Rust applets must use its safe wrappers
+instead of binding `libbb.h`, `FAST_FUNC`, or variadic libbb functions directly.
+
 ## First-wave scope
 
 The first implementation wave is limited to low-risk coreutils applets and
