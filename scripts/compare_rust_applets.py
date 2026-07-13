@@ -47,14 +47,24 @@ def run_command(
     *,
     cwd: Path = REPO_ROOT,
     input_text: str | None = None,
+    quiet: bool = False,
 ) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        argv,
-        cwd=cwd,
-        input=input_text,
-        text=True,
-        check=True,
-    )
+    try:
+        return subprocess.run(
+            argv,
+            cwd=cwd,
+            input=input_text,
+            text=True,
+            check=True,
+            capture_output=quiet,
+        )
+    except subprocess.CalledProcessError as error:
+        if quiet:
+            if error.stdout:
+                sys.stderr.write(error.stdout)
+            if error.stderr:
+                sys.stderr.write(error.stderr)
+        raise
 
 
 def tracked_files() -> list[Path]:
@@ -104,23 +114,34 @@ def set_config(config: Path, assignments: list[str]) -> None:
     )
 
 
-def configure_busybox(source_dir: Path, applets: list[str], *, rust: bool) -> Path:
+def configure_busybox(
+    source_dir: Path,
+    applets: list[str],
+    *,
+    rust: bool,
+    quiet: bool = False,
+) -> Path:
     copy_source_tree(source_dir)
-    run_command(["make", "allnoconfig"], cwd=source_dir)
+    run_command(["make", "allnoconfig"], cwd=source_dir, quiet=quiet)
 
     assignments = ["BUSYBOX=y"]
     assignments.extend(f"{APPLETS[applet]}=y" for applet in applets)
     assignments.append(f"FEATURE_RUST_APPLETS={'y' if rust else 'n'}")
     set_config(source_dir / ".config", assignments)
 
-    run_command(["make", "oldconfig"], cwd=source_dir, input_text="\n" * 512)
-    run_command(["make", "busybox"], cwd=source_dir)
+    run_command(["make", "oldconfig"], cwd=source_dir, input_text="\n" * 512, quiet=quiet)
+    run_command(["make", "busybox"], cwd=source_dir, quiet=quiet)
     return source_dir / "busybox"
 
 
-def build_binaries(build_dir: Path, applets: list[str]) -> tuple[Path, Path]:
-    c_busybox = configure_busybox(build_dir / "c-src", applets, rust=False)
-    rust_busybox = configure_busybox(build_dir / "rust-src", applets, rust=True)
+def build_binaries(
+    build_dir: Path,
+    applets: list[str],
+    *,
+    quiet: bool = False,
+) -> tuple[Path, Path]:
+    c_busybox = configure_busybox(build_dir / "c-src", applets, rust=False, quiet=quiet)
+    rust_busybox = configure_busybox(build_dir / "rust-src", applets, rust=True, quiet=quiet)
     return c_busybox, rust_busybox
 
 
