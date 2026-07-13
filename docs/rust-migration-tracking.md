@@ -64,7 +64,7 @@ Purpose: make the Rust path reproducible beyond the current native CI flow.
 
 Required issues:
 
-- [#4 Baseline fuer Build, Tests und Binary-Groesse erfassen](https://github.com/maschin96/busybox/issues/4) - open.
+- [#4 Baseline fuer Build, Tests und Binary-Groesse erfassen](https://github.com/maschin96/busybox/issues/4) - closed by `docs/c-only-baseline.md`.
 - [#8 Kbuild-Integration fuer Rust-Static-Library planen](https://github.com/maschin96/busybox/issues/8) - open.
 - [#17 Cross-Compile-Support fuer Rust validieren](https://github.com/maschin96/busybox/issues/17) - open.
 
@@ -89,7 +89,7 @@ Exit state: open.
 | [#1 Applet metadata strategy](https://github.com/maschin96/busybox/issues/1) | closed | M0 | none | #8, applet shims |
 | [#2 Cargo workspace](https://github.com/maschin96/busybox/issues/2) | closed | M0 | none | #7, #11, Rust CI |
 | [#3 Migration tracking](https://github.com/maschin96/busybox/issues/3) | closed by this tracking document | M0 | issue inventory | milestone tracking |
-| [#4 Baseline capture](https://github.com/maschin96/busybox/issues/4) | open | M2 | #10 recommended | #17, #20 |
+| [#4 Baseline capture](https://github.com/maschin96/busybox/issues/4) | closed by `docs/c-only-baseline.md` | M2 | #10 recommended | #17, #20 |
 | [#5 FFI and libc safety rules](https://github.com/maschin96/busybox/issues/5) | closed | M0 | #2 | #7, #22 |
 | [#6 Toolchain policy](https://github.com/maschin96/busybox/issues/6) | closed | M0 | #2 | CI, #17 |
 | [#7 C ABI convention](https://github.com/maschin96/busybox/issues/7) | closed | M0 | #2, #5 | #11, #13, applet ports |
@@ -118,7 +118,7 @@ Exit state: open.
    broken-pipe behavior.
 3. Complete [#14](https://github.com/maschin96/busybox/issues/14) to broaden
    simple stdout behavior beyond `true`, `false`, and path-only applets.
-4. Use [#4](https://github.com/maschin96/busybox/issues/4),
+4. Use the baseline from [#4](https://github.com/maschin96/busybox/issues/4),
    [#18](https://github.com/maschin96/busybox/issues/18), and
    [#20](https://github.com/maschin96/busybox/issues/20) to decide the second
    wave from measured behavior, size deltas, and risk.

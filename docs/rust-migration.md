@@ -7,6 +7,8 @@ specific area is explicitly migrated.
 
 The current issue order, dependency map, milestones, and first applet wave are
 tracked in [rust-migration-tracking.md](rust-migration-tracking.md).
+The current C-only build, testsuite, size, link-map, and applet baseline is
+recorded in [c-only-baseline.md](c-only-baseline.md).
 
 This repository is also a study of how AI coding agents can help with a
 careful reimplementation or language transition from C to Rust. Agent-assisted
