@@ -12,7 +12,8 @@
 //config:	help
 //config:	pwd is used to print the current directory.
 
-//applet:IF_PWD(APPLET_NOFORK(pwd, pwd, BB_DIR_BIN, BB_SUID_DROP, pwd))
+//applet:IF_PWD(IF_FEATURE_RUST_APPLETS(APPLET(pwd, BB_DIR_BIN, BB_SUID_DROP)))
+//applet:IF_PWD(IF_NOT_FEATURE_RUST_APPLETS(APPLET_NOFORK(pwd, pwd, BB_DIR_BIN, BB_SUID_DROP, pwd)))
 
 //kbuild:lib-$(CONFIG_PWD) += pwd.o
 
@@ -27,6 +28,14 @@
 
 #include "libbb.h"
 
+int pwd_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+#if ENABLE_FEATURE_RUST_APPLETS
+int rust_pwd_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int pwd_main(int argc, char **argv)
+{
+	return rust_pwd_main(argc, argv);
+}
+#else
 static int logical_getcwd(void)
 {
 	struct stat st1;
@@ -66,7 +75,6 @@ static int logical_getcwd(void)
 	return 1;
 }
 
-int pwd_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
 int pwd_main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM)
 {
 	char *buf;
@@ -91,3 +99,4 @@ int pwd_main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM)
 
 	return EXIT_FAILURE;
 }
+#endif

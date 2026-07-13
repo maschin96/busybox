@@ -21,7 +21,8 @@
 //config:	leaving just the filename itself. Enable this option if you wish
 //config:	to enable the 'basename' utility.
 
-//applet:IF_BASENAME(APPLET_NOFORK(basename, basename, BB_DIR_USR_BIN, BB_SUID_DROP, basename))
+//applet:IF_BASENAME(IF_FEATURE_RUST_APPLETS(APPLET(basename, BB_DIR_USR_BIN, BB_SUID_DROP)))
+//applet:IF_BASENAME(IF_NOT_FEATURE_RUST_APPLETS(APPLET_NOFORK(basename, basename, BB_DIR_USR_BIN, BB_SUID_DROP, basename)))
 
 //kbuild:lib-$(CONFIG_BASENAME) += basename.o
 
@@ -45,9 +46,16 @@
 
 #include "libbb.h"
 
-/* This is a NOFORK applet. Be very careful! */
+/* The C implementation is NOFORK. The Rust implementation is not. */
 
 int basename_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+#if ENABLE_FEATURE_RUST_APPLETS
+int rust_basename_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int basename_main(int argc, char **argv)
+{
+	return rust_basename_main(argc, argv);
+}
+#else
 int basename_main(int argc UNUSED_PARAM, char **argv)
 {
 	unsigned opts;
@@ -90,3 +98,4 @@ int basename_main(int argc UNUSED_PARAM, char **argv)
 
 	return EXIT_SUCCESS;
 }
+#endif

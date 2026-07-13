@@ -13,7 +13,8 @@
 //config:	dirname is used to strip a non-directory suffix from
 //config:	a file name.
 
-//applet:IF_DIRNAME(APPLET_NOFORK(dirname, dirname, BB_DIR_USR_BIN, BB_SUID_DROP, dirname))
+//applet:IF_DIRNAME(IF_FEATURE_RUST_APPLETS(APPLET(dirname, BB_DIR_USR_BIN, BB_SUID_DROP)))
+//applet:IF_DIRNAME(IF_NOT_FEATURE_RUST_APPLETS(APPLET_NOFORK(dirname, dirname, BB_DIR_USR_BIN, BB_SUID_DROP, dirname)))
 
 //kbuild:lib-$(CONFIG_DIRNAME) += dirname.o
 
@@ -33,11 +34,19 @@
 
 #include "libbb.h"
 
-/* This is a NOFORK applet. Be very careful! */
+/* The C implementation is NOFORK. The Rust implementation is not. */
 
 int dirname_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+#if ENABLE_FEATURE_RUST_APPLETS
+int rust_dirname_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int dirname_main(int argc, char **argv)
+{
+	return rust_dirname_main(argc, argv);
+}
+#else
 int dirname_main(int argc UNUSED_PARAM, char **argv)
 {
 	puts(dirname(single_argv(argv)));
 	return fflush_all();
 }
+#endif

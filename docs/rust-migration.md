@@ -121,6 +121,10 @@ Current status:
   The Rust path is intentionally registered as a normal applet, not NOFORK.
 - `false` has an opt-in Rust implementation behind `FEATURE_RUST_APPLETS`.
   The Rust path is intentionally registered as a normal applet, not NOFORK.
+- `basename`, `dirname`, and `pwd` have opt-in Rust implementations behind
+  `FEATURE_RUST_APPLETS`. The Rust paths are intentionally registered as normal
+  applets, not NOFORK, while allocator, stdio, panic, and process-global-state
+  behavior are still being reviewed.
 
 ## Verification expectations
 
@@ -140,10 +144,13 @@ should be added before migrating applets with meaningful I/O behavior.
 `scripts/compare_rust_applets.py` is the reusable C-vs-Rust comparison harness
 for the first applet wave. By default it builds isolated C and Rust BusyBox
 variants under `build/rust-compare/`, runs the currently ported Rust applets
-(`true` and `false`) through direct `busybox <applet>` dispatch and symlink
-dispatch, and compares stdout, stderr, and exit code. Differences are printed
-with the applet, invocation shape, arguments, and unified stdout/stderr diffs so
-the failing case can be rerun.
+(`true`, `false`, `basename`, `dirname`, and `pwd`) through direct
+`busybox <applet>` dispatch and symlink dispatch, and compares stdout, stderr,
+and exit code. The path applet cases cover trailing slashes, root paths,
+`basename` suffix removal, multi-file options, and `--`, `dirname --`, relative
+paths, and `pwd` output from the physical current directory. Differences are
+printed with the applet, invocation shape, arguments, and unified stdout/stderr
+diffs so the failing case can be rerun.
 
 To compare existing binaries instead of rebuilding them:
 

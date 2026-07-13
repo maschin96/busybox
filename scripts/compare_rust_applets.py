@@ -16,8 +16,11 @@ from dataclasses import dataclass
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BUILD_DIR = REPO_ROOT / "build" / "rust-compare"
 APPLETS = {
-    "true": "TRUE",
+    "basename": "BASENAME",
+    "dirname": "DIRNAME",
     "false": "FALSE",
+    "pwd": "PWD",
+    "true": "TRUE",
 }
 COPY_EXCLUDED_DIRS = {
     ".git",
@@ -148,9 +151,38 @@ def build_binaries(
 def applet_cases(applets: list[str]) -> list[Case]:
     cases: list[Case] = []
     for applet in applets:
-        cases.append(Case(applet=applet, name="direct"))
-        cases.append(Case(applet=applet, name="direct-with-arg", args=("ignored",)))
-        cases.append(Case(applet=applet, name="symlink", symlink=True))
+        if applet in {"false", "true"}:
+            cases.append(Case(applet=applet, name="direct"))
+            cases.append(Case(applet=applet, name="direct-with-arg", args=("ignored",)))
+            cases.append(Case(applet=applet, name="symlink", symlink=True))
+        elif applet == "basename":
+            cases.extend(
+                [
+                    Case(applet=applet, name="plain", args=("/usr/local/bin/foo",)),
+                    Case(applet=applet, name="trailing-slash", args=("/usr/local/bin/",)),
+                    Case(applet=applet, name="root", args=("/",)),
+                    Case(applet=applet, name="suffix", args=("/foo/bar.txt", ".txt")),
+                    Case(applet=applet, name="suffix-not-whole", args=("foo", "foo")),
+                    Case(applet=applet, name="dash-dash", args=("--", "/tmp/foo")),
+                    Case(applet=applet, name="all", args=("-a", "/a/b", "/c/d/")),
+                    Case(applet=applet, name="suffix-option", args=("-s", ".txt", "/a/b.txt", "c.txt")),
+                    Case(applet=applet, name="symlink", args=("/usr/bin/test",), symlink=True),
+                ]
+            )
+        elif applet == "dirname":
+            cases.extend(
+                [
+                    Case(applet=applet, name="plain", args=("/tmp/foo",)),
+                    Case(applet=applet, name="trailing-slash", args=("/tmp/foo/",)),
+                    Case(applet=applet, name="relative", args=("foo",)),
+                    Case(applet=applet, name="root", args=("/",)),
+                    Case(applet=applet, name="dash-dash", args=("--", "/tmp/foo")),
+                    Case(applet=applet, name="symlink", args=("/tmp/foo",), symlink=True),
+                ]
+            )
+        elif applet == "pwd":
+            cases.append(Case(applet=applet, name="direct"))
+            cases.append(Case(applet=applet, name="symlink", symlink=True))
     return cases
 
 
