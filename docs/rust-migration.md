@@ -14,6 +14,8 @@ cross-target interface are specified in
 [rust-kbuild-integration.md](rust-kbuild-integration.md).
 Validated and candidate target triples are recorded in
 [rust-cross-compile.md](rust-cross-compile.md).
+Prioritized candidates for genuine Rust libbb-like utilities are evaluated in
+[rust-libbb-candidates.md](rust-libbb-candidates.md).
 
 This repository is also a study of how AI coding agents can help with a
 careful reimplementation or language transition from C to Rust. Agent-assisted

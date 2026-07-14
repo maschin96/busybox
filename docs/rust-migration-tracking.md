@@ -76,7 +76,7 @@ first applet wave.
 
 Required issues:
 
-- [#18 Rust-Ersatz fuer einfache libbb-Utilities evaluieren](https://github.com/maschin96/busybox/issues/18) - open.
+- [#18 Rust-Ersatz fuer einfache libbb-Utilities evaluieren](https://github.com/maschin96/busybox/issues/18) - complete; evaluation in `docs/rust-libbb-candidates.md`.
 - [#20 Zweite Applet-Welle planen](https://github.com/maschin96/busybox/issues/20) - open.
 
 Exit state: open.
@@ -102,7 +102,7 @@ Exit state: open.
 | [#15 C-vs-Rust comparison harness](https://github.com/maschin96/busybox/issues/15) | closed | M1 | #11, #13 | #9, #10, #12, #14 |
 | [#16 NOFORK/NOEXEC rules](https://github.com/maschin96/busybox/issues/16) | closed | M0 | #5, #7 | applet registration decisions |
 | [#17 Cross-compile validation](https://github.com/maschin96/busybox/issues/17) | complete | M2 | #6, #8, #4 | target support matrix |
-| [#18 libbb-like Rust utility candidates](https://github.com/maschin96/busybox/issues/18) | open | M3 | #9, #12, #14 evidence recommended | #20, future utility ports |
+| [#18 libbb-like Rust utility candidates](https://github.com/maschin96/busybox/issues/18) | complete | M3 | #9, #12, #14 | #20, future utility ports |
 | [#19 High-risk exclusions](https://github.com/maschin96/busybox/issues/19) | closed | M0 | none | scope control |
 | [#20 Second applet wave](https://github.com/maschin96/busybox/issues/20) | open | M3 | #4, #9, #10, #12, #14, #18 | next migration batch |
 | [#21 Dependency policy](https://github.com/maschin96/busybox/issues/21) | closed | M0 | #6 | future crate review |
