@@ -1,0 +1,1 @@
+::sysinit:/tmp/busybox sh -c 'test "$PPID" -eq 1 && echo PASS > /artifacts/init-result'

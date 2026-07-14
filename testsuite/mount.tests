@@ -10,6 +10,21 @@ test "`id -u`" = 0 || {
 	exit 0
 }
 
+# Being uid 0 in a container does not imply that its mount namespace grants
+# CAP_SYS_ADMIN. Probe a throwaway tmpfs before creating images or touching
+# loop devices, and report an explicit skip when the runtime cannot isolate
+# privileged mount operations.
+capability_probe="$PWD/.mount-capability-probe"
+rm -rf "$capability_probe"
+mkdir "$capability_probe" || exit 1
+if ! mount -t tmpfs -o size=4k tmpfs "$capability_probe" 2>/dev/null; then
+	rmdir "$capability_probe"
+	echo "SKIPPED: mount (CAP_SYS_ADMIN is unavailable in this namespace)"
+	exit 0
+fi
+umount "$capability_probe" || exit 1
+rmdir "$capability_probe" || exit 1
+
 # Without MOUNT_LOOP_CREATE, the test will fail if /dev/loopN's do not exist
 if test x"$CONFIG_MKFS_MINIX" != x"y" \
 || test x"$CONFIG_FEATURE_MINIX2" != x"y" \

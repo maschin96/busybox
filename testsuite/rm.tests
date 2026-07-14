@@ -1,0 +1,13 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/rm/ directory.
+testing_script "rm-removes-file" <<'BB_TEST_EOF_rm_1'
+touch foo
+busybox rm foo
+test ! -f foo
+BB_TEST_EOF_rm_1
+
+exit $FAILCOUNT

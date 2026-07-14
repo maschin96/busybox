@@ -8,6 +8,39 @@ on:
       - "codex/**"
 
 jobs:
+  functional-tests:
+    name: Unified functional tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run command.tests suite in Docker
+        run: BUSYBOX_BUILD_IMAGE=busybox-build:test scripts/docker-testsuite.sh
+
+  libbb-unit-tests:
+    name: libbb unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run libbb unit tests in Docker
+        run: BUSYBOX_BUILD_IMAGE=busybox-build:test scripts/docker-libbb-unit-tests.sh
+
+  privileged-tests:
+    name: Isolated privileged tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run mount and init tests in Docker
+        run: BUSYBOX_BUILD_IMAGE=busybox-build:test scripts/docker-privileged-tests.sh
+
   busybox-default:
     name: BusyBox default config
     runs-on: ubuntu-latest

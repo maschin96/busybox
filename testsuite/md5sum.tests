@@ -1,6 +1,8 @@
 #!/bin/sh
 # Used by {ms5,shaN}sum
 
+. ./testing.sh
+
 # We pipe texts 0...999 bytes long, {md5,shaN}sum them,
 # then {md5,shaN}sum the resulting list.
 # Then we compare the result with expected result.
@@ -51,5 +53,19 @@ else
 	echo "PASS: $sum -c EMPTY"
 fi
 rm EMPTY
+
+
+# Migrated from the former testsuite/md5sum/ directory.
+if test "$sum" = md5sum; then
+optional FEATURE_MD5_SHA1_SUM_CHECK
+testing_script "md5sum-verifies-non-binary-file" <<'BB_TEST_EOF_md5sum_1'
+# FEATURE: CONFIG_FEATURE_MD5_SHA1_SUM_CHECK
+
+touch foo
+md5sum foo > bar
+busybox md5sum -c bar
+BB_TEST_EOF_md5sum_1
+SKIP=
+fi
 
 exit $FAILCOUNT

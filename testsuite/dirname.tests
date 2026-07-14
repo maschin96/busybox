@@ -1,0 +1,29 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/dirname/ directory.
+testing_script "dirname-handles-absolute-path" <<'BB_TEST_EOF_dirname_1'
+test $(busybox dirname /foo/bar/baz) = /foo/bar
+BB_TEST_EOF_dirname_1
+testing_script "dirname-handles-empty-path" <<'BB_TEST_EOF_dirname_2'
+test $(busybox dirname '') = .
+BB_TEST_EOF_dirname_2
+testing_script "dirname-handles-multiple-slashes" <<'BB_TEST_EOF_dirname_3'
+test $(busybox dirname foo/bar///baz) = foo/bar
+BB_TEST_EOF_dirname_3
+testing_script "dirname-handles-relative-path" <<'BB_TEST_EOF_dirname_4'
+test $(busybox dirname foo/bar/baz) = foo/bar
+BB_TEST_EOF_dirname_4
+testing_script "dirname-handles-root" <<'BB_TEST_EOF_dirname_5'
+test $(busybox dirname /) = /
+BB_TEST_EOF_dirname_5
+testing_script "dirname-handles-single-component" <<'BB_TEST_EOF_dirname_6'
+test $(busybox dirname foo) = .
+BB_TEST_EOF_dirname_6
+testing_script "dirname-works" <<'BB_TEST_EOF_dirname_7'
+test x$(dirname $(pwd)) = x$(busybox dirname $(pwd))
+BB_TEST_EOF_dirname_7
+
+exit $FAILCOUNT

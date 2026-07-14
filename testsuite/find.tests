@@ -79,4 +79,14 @@ testing "find ./// -name .///" \
 
 rm -rf find.tempdir
 
+
+# Migrated from the former testsuite/find/ directory.
+optional FEATURE_FIND_XDEV
+testing_script "find-supports-minus-xdev" <<'BB_TEST_EOF_find_1'
+# FEATURE: CONFIG_FEATURE_FIND_XDEV
+
+busybox find . -xdev >/dev/null 2>&1
+BB_TEST_EOF_find_1
+SKIP=
+
 exit $FAILCOUNT

@@ -1,0 +1,30 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/hostname/ directory.
+testing_script "hostname-d-works" <<'BB_TEST_EOF_hostname_1'
+f=$(busybox hostname -f).
+d=$(busybox hostname -d)
+test x"${f#*.}" = x"$d${d:+.}"
+BB_TEST_EOF_hostname_1
+testing_script "hostname-i-works" <<'BB_TEST_EOF_hostname_2'
+test x"$SKIP_KNOWN_BUGS" != x"" && exit
+
+# Observed bug:
+# # ./busybox hostname -i
+# 127.0.0.1
+# # hostname -i
+# 127.0.0.1 10.0.0.2 10.32.10.45
+
+test x$(hostname -i) = x$(busybox hostname -i)
+BB_TEST_EOF_hostname_2
+testing_script "hostname-s-works" <<'BB_TEST_EOF_hostname_3'
+test x$(hostname -s) = x$(busybox hostname -s)
+BB_TEST_EOF_hostname_3
+testing_script "hostname-works" <<'BB_TEST_EOF_hostname_4'
+test x$(hostname) = x$(busybox hostname)
+BB_TEST_EOF_hostname_4
+
+exit $FAILCOUNT

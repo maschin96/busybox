@@ -1,3 +1,11 @@
 #!/bin/sh
 
 . ./bunzip2.tests
+
+# Migrated from the former testsuite/gunzip/ directory.
+testing_script "gunzip-reads-from-standard-input" <<'BB_TEST_EOF_gunzip_1'
+echo foo | gzip | busybox gunzip > output
+echo foo | cmp - output
+BB_TEST_EOF_gunzip_1
+
+exit $FAILCOUNT

@@ -203,4 +203,148 @@ test ! -L dir/file_symlink && test   -f dir/file_symlink || echo BAD: dir/file_s
 # Clean up
 rm -rf cp.testdir cp.testdir2 2>/dev/null
 
+
+# Migrated from the former testsuite/cp/ directory.
+testing_script "cp-RHL-does_not_preserve-links" <<'BB_TEST_EOF_cp_1'
+mkdir a
+>a/file
+ln -s file a/link
+busybox cp -RHL a b
+test ! -L b/link
+#sh </dev/tty >/dev/tty 2>&1
+BB_TEST_EOF_cp_1
+testing_script "cp-a-files-to-dir" <<'BB_TEST_EOF_cp_2'
+echo file number one > file1
+echo file number two > file2
+ln -s file2 link1
+mkdir dir1
+# why???
+#TZ=UTC0 touch -d '2000-01-30 05:24:08' dir1/file3
+mkdir there
+busybox cp -a file1 file2 link1 dir1 there
+test -f there/file1
+test -f there/file2
+test ! -s there/dir1/file3
+test -L there/link1
+test xfile2 = x`readlink there/link1`
+test ! dir1/file3 -ot there/dir1/file3
+test ! dir1/file3 -nt there/dir1/file3
+BB_TEST_EOF_cp_2
+testing_script "cp-a-preserves-links" <<'BB_TEST_EOF_cp_3'
+touch foo
+ln -s foo bar
+busybox cp -a bar baz
+test -L baz
+test xfoo = x`readlink baz`
+BB_TEST_EOF_cp_3
+testing_script "cp-copies-empty-file" <<'BB_TEST_EOF_cp_4'
+touch foo
+busybox cp foo bar
+cmp foo bar
+BB_TEST_EOF_cp_4
+testing_script "cp-copies-large-file" <<'BB_TEST_EOF_cp_5'
+dd if=/dev/zero of=foo seek=10k count=1 2>/dev/null
+busybox cp foo bar
+cmp foo bar
+BB_TEST_EOF_cp_5
+testing_script "cp-copies-small-file" <<'BB_TEST_EOF_cp_6'
+echo I WANT > foo
+busybox cp foo bar
+cmp foo bar
+BB_TEST_EOF_cp_6
+testing_script "cp-d-files-to-dir" <<'BB_TEST_EOF_cp_7'
+echo file number one > file1
+echo file number two > file2
+touch file3
+ln -s file2 link1
+mkdir there
+busybox cp -d file1 file2 file3 link1 there
+test -f there/file1
+test -f there/file2
+test ! -s there/file3
+test -L there/link1
+test xfile2 = x`readlink there/link1`
+BB_TEST_EOF_cp_7
+testing_script "cp-dev-file" <<'BB_TEST_EOF_cp_8'
+busybox cp /dev/null foo
+test -f foo
+BB_TEST_EOF_cp_8
+testing_script "cp-dir-create-dir" <<'BB_TEST_EOF_cp_9'
+mkdir bar
+touch bar/baz
+busybox cp -R bar foo
+test -f foo/baz
+BB_TEST_EOF_cp_9
+testing_script "cp-dir-existing-dir" <<'BB_TEST_EOF_cp_10'
+mkdir bar
+touch bar/baz
+mkdir foo
+busybox cp -R bar foo
+test -f foo/bar/baz
+BB_TEST_EOF_cp_10
+testing_script "cp-does-not-copy-unreadable-file" <<'BB_TEST_EOF_cp_11'
+touch foo
+chmod a-r foo
+set +e
+if test `id -u` = 0; then
+    # run as user with nonzero uid
+    setuidgid 1 busybox cp foo bar
+else
+    busybox cp foo bar
+fi
+set -e
+test ! -f bar
+BB_TEST_EOF_cp_11
+testing_script "cp-files-to-dir" <<'BB_TEST_EOF_cp_12'
+echo file number one > file1
+echo file number two > file2
+touch file3
+ln -s file2 link1
+mkdir there
+busybox cp file1 file2 file3 link1 there
+test -f there/file1
+test -f there/file2
+test ! -s there/file3
+test -f there/link1
+cmp there/file2 there/link1
+BB_TEST_EOF_cp_12
+testing_script "cp-follows-links" <<'BB_TEST_EOF_cp_13'
+touch foo
+ln -s foo bar
+busybox cp bar baz
+test -f baz
+BB_TEST_EOF_cp_13
+optional FEATURE_CP_LONG_OPTIONS
+testing_script "cp-parents" <<'BB_TEST_EOF_cp_14'
+# FEATURE: CONFIG_FEATURE_CP_LONG_OPTIONS
+mkdir -p foo/bar/baz
+touch foo/bar/baz/file
+mkdir dir
+busybox cp --parents foo/bar/baz/file dir
+test -f dir/foo/bar/baz/file
+BB_TEST_EOF_cp_14
+SKIP=
+optional FEATURE_PRESERVE_HARDLINKS
+testing_script "cp-preserves-hard-links" <<'BB_TEST_EOF_cp_15'
+# FEATURE: CONFIG_FEATURE_PRESERVE_HARDLINKS
+touch foo
+ln foo bar
+mkdir baz
+busybox cp -d foo bar baz
+test baz/foo -ef baz/bar
+BB_TEST_EOF_cp_15
+SKIP=
+testing_script "cp-preserves-links" <<'BB_TEST_EOF_cp_16'
+touch foo
+ln -s foo bar
+busybox cp -d bar baz
+test -L baz
+test xfoo = x`readlink baz`
+BB_TEST_EOF_cp_16
+testing_script "cp-preserves-source-file" <<'BB_TEST_EOF_cp_17'
+touch foo
+busybox cp foo bar
+test -f foo
+BB_TEST_EOF_cp_17
+
 exit $FAILCOUNT

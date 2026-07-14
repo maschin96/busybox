@@ -1,0 +1,98 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/paste/ directory.
+testing_script "paste" <<'BB_TEST_EOF_paste_1'
+cat > foo <<EOF
+foo1
+foo2
+foo3
+EOF
+
+cat > bar <<EOF
+bar1
+bar2
+bar3
+EOF
+
+cat > baz <<EOF
+foo1	bar1
+foo2	bar2
+foo3	bar3
+EOF
+
+busybox paste foo bar > qux
+diff -u baz qux
+BB_TEST_EOF_paste_1
+testing_script "paste-back-cuted-lines" <<'BB_TEST_EOF_paste_2'
+cat > foo <<EOF
+this is the first line
+this is the second line
+this is the third line
+EOF
+cut -b 1-13 -n foo > foo1
+cut -b 14- -n foo > foo2
+busybox paste -d '\0' foo1 foo2 > bar
+cmp foo bar
+BB_TEST_EOF_paste_2
+testing_script "paste-multi-stdin" <<'BB_TEST_EOF_paste_3'
+cat > foo <<EOF
+line1
+line2
+line3
+line4
+line5
+line6
+EOF
+
+cat > bar <<EOF
+line1	line2	line3
+line4	line5	line6
+EOF
+
+busybox paste - - - < foo > baz
+cmp bar baz
+BB_TEST_EOF_paste_3
+testing_script "paste-pairs" <<'BB_TEST_EOF_paste_4'
+cat > foo <<EOF
+foo1
+bar1
+foo2
+bar2
+foo3
+EOF
+
+cat > bar <<EOF
+foo1	bar1
+foo2	bar2
+foo3
+EOF
+
+busybox paste -s -d "\t\n" foo > baz
+cmp bar baz
+BB_TEST_EOF_paste_4
+testing_script "paste-separate" <<'BB_TEST_EOF_paste_5'
+cat > foo <<EOF
+foo1
+foo2
+foo3
+EOF
+
+cat > bar <<EOF
+bar1
+bar2
+bar3
+EOF
+
+cat > baz <<EOF
+foo1	foo2	foo3
+bar1	bar2	bar3
+EOF
+
+busybox paste -s foo bar > qux
+cmp baz qux
+BB_TEST_EOF_paste_5
+
+exit $FAILCOUNT

@@ -81,4 +81,22 @@ SKIP=
 testing "cut empty field" "cut -d ':' -f 1-3" "a::b\n" "" "a::b\n"
 testing "cut empty field 2" "cut -d ':' -f 3-5" "b::c\n" "" "a::b::c:d\n"
 
+
+# Migrated from the former testsuite/cut/ directory.
+testing_script "cut-cuts-a-character" <<'BB_TEST_EOF_cut_1'
+test $(echo abcd | busybox cut -c 3) = c
+BB_TEST_EOF_cut_1
+testing_script "cut-cuts-a-closed-range" <<'BB_TEST_EOF_cut_2'
+test $(echo abcd | busybox cut -c 1-2) = ab
+BB_TEST_EOF_cut_2
+testing_script "cut-cuts-a-field" <<'BB_TEST_EOF_cut_3'
+test $($ECHO -e "f1\tf2\tf3" | busybox cut -f 2) = f2
+BB_TEST_EOF_cut_3
+testing_script "cut-cuts-an-open-range" <<'BB_TEST_EOF_cut_4'
+test $(echo abcd | busybox cut -c -3) = abc
+BB_TEST_EOF_cut_4
+testing_script "cut-cuts-an-unclosed-range" <<'BB_TEST_EOF_cut_5'
+test $(echo abcd | busybox cut -c 3-) = cd
+BB_TEST_EOF_cut_5
+
 exit $FAILCOUNT

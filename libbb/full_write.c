@@ -40,3 +40,36 @@ ssize_t FAST_FUNC full_write(int fd, const void *buf, size_t len)
 
 	return total;
 }
+
+#if ENABLE_UNIT_TEST
+
+BBUNIT_DEFINE_TEST(full_write_pipe)
+{
+	int fds[2] = { -1, -1 };
+	char buf[4] = { 0, 0, 0, 0 };
+
+	BBUNIT_ASSERT_EQ(0, pipe(fds));
+	BBUNIT_ASSERT_EQ(3, full_write(fds[1], "abc", 3));
+	close(fds[1]);
+	fds[1] = -1;
+	BBUNIT_ASSERT_EQ(3, read(fds[0], buf, sizeof(buf)));
+	BBUNIT_ASSERT_STREQ("abc", buf);
+
+	BBUNIT_ENDTEST;
+
+	if (fds[0] >= 0)
+		close(fds[0]);
+	if (fds[1] >= 0)
+		close(fds[1]);
+}
+
+BBUNIT_DEFINE_TEST(full_write_error)
+{
+	errno = 0;
+	BBUNIT_ASSERT_EQ(-1, full_write(-1, "x", 1));
+	BBUNIT_ASSERT_EQ(EBADF, errno);
+
+	BBUNIT_ENDTEST;
+}
+
+#endif /* ENABLE_UNIT_TEST */

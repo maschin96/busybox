@@ -46,4 +46,21 @@ testing 'cat -b' \
 	'line 1\n\nline 3\n'
 SKIP=
 
+
+# Migrated from the former testsuite/cat/ directory.
+testing_script "cat-prints-a-file" <<'BB_TEST_EOF_cat_1'
+echo I WANT > foo
+busybox cat foo >bar
+cmp foo bar
+BB_TEST_EOF_cat_1
+testing_script "cat-prints-a-file-and-standard-input" <<'BB_TEST_EOF_cat_2'
+echo I WANT > foo
+echo SOMETHING | busybox cat foo - >bar
+cat >baz <<EOF
+I WANT
+SOMETHING
+EOF
+cmp bar baz
+BB_TEST_EOF_cat_2
+
 exit $FAILCOUNT

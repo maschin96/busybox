@@ -1,0 +1,19 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/cmp/ directory.
+testing_script "cmp-detects-difference" <<'BB_TEST_EOF_cmp_1'
+echo foo >foo
+echo bar >bar
+set +e
+busybox cmp -s foo bar
+if [ $? != 0 ] ; then
+	exit 0;
+fi
+
+exit 1;
+BB_TEST_EOF_cmp_1
+
+exit $FAILCOUNT

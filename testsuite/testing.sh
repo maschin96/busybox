@@ -4,8 +4,8 @@
 #
 # License is GPLv2, see LICENSE in the busybox tarball for full license text.
 
-# This file defines two functions, "testing" and "optional"
-# and a couple more...
+# This file defines the test helpers "testing", "testing_script", and
+# "optional", plus a couple more.
 
 # The following environment variables may be set to enable optional behavior
 # in "testing":
@@ -116,6 +116,57 @@ testing()
   [ -z "$DEBUG" ] || set +x
 
   return $RETVAL
+}
+
+# Run a shell-fragment regression test in an isolated directory.  The test
+# body is read from standard input so migrated multi-line tests do not need
+# fragile shell quoting:
+#
+# testing_script "description" <<'EOF'
+# command
+# assertion
+# EOF
+
+testing_script()
+{
+  NAME="$1"
+
+  if [ $# -ne 1 ]
+  then
+    echo "Test $NAME has wrong number of arguments: $# (must be 1)" >&2
+    exit 1
+  fi
+
+  TEST_ROOT="$PWD/.tmpdir.testing-script.$$"
+  TEST_SOURCE_DIR="${tsdir:-$PWD}"
+  rm -rf "$TEST_ROOT"
+  mkdir "$TEST_ROOT" || exit 1
+  cat >"$TEST_ROOT/testcase" || exit 1
+
+  if [ -n "$SKIP" ]
+  then
+    echo "SKIPPED: $NAME"
+    rm -rf "$TEST_ROOT"
+    return 0
+  fi
+
+  STATUS=0
+  (
+    cd "$TEST_ROOT" || exit 1
+    d="$TEST_SOURCE_DIR" sh -e "$TEST_ROOT/testcase"
+  ) >"$TEST_ROOT/output" 2>&1 || STATUS=$?
+
+  if [ "$STATUS" -eq 0 ]
+  then
+    echo "PASS: $NAME"
+  else
+    FAILCOUNT=$(($FAILCOUNT + 1))
+    echo "FAIL: $NAME"
+    [ -z "$VERBOSE" ] || cat "$TEST_ROOT/output"
+  fi
+  rm -rf "$TEST_ROOT"
+
+  return "$STATUS"
 }
 
 # Recursively grab an executable and all the libraries needed to run it.

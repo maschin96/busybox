@@ -1,0 +1,34 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/dd/ directory.
+testing_script "dd-accepts-if" <<'BB_TEST_EOF_dd_1'
+echo I WANT >foo
+test "$(busybox dd if=foo 2>/dev/null)" = "I WANT"
+BB_TEST_EOF_dd_1
+testing_script "dd-accepts-of" <<'BB_TEST_EOF_dd_2'
+echo I WANT | busybox dd of=foo 2>/dev/null
+echo I WANT | cmp foo -
+BB_TEST_EOF_dd_2
+testing_script "dd-copies-from-standard-input-to-standard-output" <<'BB_TEST_EOF_dd_3'
+test "$(echo I WANT | busybox dd 2>/dev/null)" = "I WANT"
+BB_TEST_EOF_dd_3
+optional FEATURE_DD_IBS_OBS
+testing_script "dd-count-bytes" <<'BB_TEST_EOF_dd_4'
+# FEATURE: CONFIG_FEATURE_DD_IBS_OBS
+
+test "$(echo I WANT | busybox dd count=3 iflag=count_bytes 2>/dev/null)" = "I W"
+BB_TEST_EOF_dd_4
+SKIP=
+testing_script "dd-prints-count-to-standard-error" <<'BB_TEST_EOF_dd_5'
+echo I WANT | busybox dd of=foo >/dev/null 2>bar
+grep -q records bar
+BB_TEST_EOF_dd_5
+testing_script "dd-reports-write-errors" <<'BB_TEST_EOF_dd_6'
+busybox dd if="$0" of=/dev/full 2>/dev/null || status=$?
+test $status = 1
+BB_TEST_EOF_dd_6
+
+exit $FAILCOUNT

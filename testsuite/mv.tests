@@ -1,0 +1,142 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/mv/ directory.
+testing_script "mv-files-to-dir" <<'BB_TEST_EOF_mv_1'
+echo file number one > file1
+echo file number two > file2
+ln -s file2 link1
+mkdir dir1
+TZ=UTC0 touch -d '2000-01-30 05:24:08' dir1/file3
+mkdir there
+busybox mv file1 file2 link1 dir1 there
+test -f there/file1
+test -f there/file2
+test -f there/dir1/file3
+test -L there/link1
+test xfile2 = x`readlink there/link1`
+test ! -e file1
+test ! -e file2
+test ! -e link1
+test ! -e dir1/file3
+BB_TEST_EOF_mv_1
+testing_script "mv-files-to-dir-2" <<'BB_TEST_EOF_mv_2'
+echo file number one > file1
+echo file number two > file2
+ln -s file2 link1
+mkdir dir1
+TZ=UTC0 touch -d '2000-01-30 05:24:08' dir1/file3
+mkdir there
+busybox mv -t there file1 file2 link1 dir1
+test -f there/file1
+test -f there/file2
+test -f there/dir1/file3
+test -L there/link1
+test xfile2 = x`readlink there/link1`
+test ! -e file1
+test ! -e file2
+test ! -e link1
+test ! -e dir1/file3
+BB_TEST_EOF_mv_2
+testing_script "mv-follows-links" <<'BB_TEST_EOF_mv_3'
+touch foo
+ln -s foo bar
+busybox mv bar baz
+test -f baz
+BB_TEST_EOF_mv_3
+testing_script "mv-moves-empty-file" <<'BB_TEST_EOF_mv_4'
+touch foo
+busybox mv foo bar
+test ! -e foo
+test -f bar
+BB_TEST_EOF_mv_4
+testing_script "mv-moves-file" <<'BB_TEST_EOF_mv_5'
+touch foo
+busybox mv foo bar
+test ! -f foo -a -f bar
+BB_TEST_EOF_mv_5
+testing_script "mv-moves-hardlinks" <<'BB_TEST_EOF_mv_6'
+touch foo
+ln foo bar
+busybox mv bar baz
+test ! -f bar -a -f baz
+BB_TEST_EOF_mv_6
+testing_script "mv-moves-large-file" <<'BB_TEST_EOF_mv_7'
+dd if=/dev/zero of=foo seek=10k count=1 2>/dev/null
+busybox mv foo bar
+test ! -e foo
+test -f bar
+BB_TEST_EOF_mv_7
+testing_script "mv-moves-small-file" <<'BB_TEST_EOF_mv_8'
+echo I WANT > foo
+busybox mv foo bar
+test ! -e foo
+test -f bar
+BB_TEST_EOF_mv_8
+testing_script "mv-moves-symlinks" <<'BB_TEST_EOF_mv_9'
+touch foo
+ln -s foo bar
+busybox mv bar baz
+test -f foo
+test ! -e bar
+test -L baz
+BB_TEST_EOF_mv_9
+testing_script "mv-moves-unreadable-files" <<'BB_TEST_EOF_mv_10'
+touch foo
+chmod a-r foo
+busybox mv foo bar
+test ! -e foo
+test -f bar
+BB_TEST_EOF_mv_10
+optional FEATURE_PRESERVE_HARDLINKS
+testing_script "mv-preserves-hard-links" <<'BB_TEST_EOF_mv_11'
+# FEATURE: CONFIG_FEATURE_PRESERVE_HARDLINKS
+touch foo
+ln foo bar
+mkdir baz
+busybox mv foo bar baz
+test baz/foo -ef baz/bar
+BB_TEST_EOF_mv_11
+SKIP=
+testing_script "mv-preserves-links" <<'BB_TEST_EOF_mv_12'
+touch foo
+ln -s foo bar
+busybox mv bar baz
+test -L baz
+test xfoo = x`readlink baz`
+BB_TEST_EOF_mv_12
+testing_script "mv-refuses-mv-dir-to-subdir" <<'BB_TEST_EOF_mv_13'
+echo file number one > file1
+echo file number two > file2
+ln -s file2 link1
+mkdir dir1
+TZ=UTC0 touch -d '2000-01-30 05:24:08' dir1/file3
+mkdir there
+busybox mv file1 file2 link1 dir1 there
+test -f there/file1
+test -f there/file2
+test -f there/dir1/file3
+test -L there/link1
+test xfile2 = x`readlink there/link1`
+test ! -e file1
+test ! -e file2
+test ! -e link1
+test ! -e dir1/file3
+set +e
+busybox mv there there/dir1
+if [ $? != 0 ] ; then
+	exit 0;
+fi
+
+exit 1;
+BB_TEST_EOF_mv_13
+testing_script "mv-removes-source-file" <<'BB_TEST_EOF_mv_14'
+touch foo
+busybox mv foo bar
+test ! -e foo
+test -f bar
+BB_TEST_EOF_mv_14
+
+exit $FAILCOUNT

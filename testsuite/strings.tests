@@ -1,0 +1,19 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/strings/ directory.
+testing_script "strings-works-like-GNU" <<'BB_TEST_EOF_strings_1'
+rm -f foo bar
+strings -af ../../busybox > foo
+busybox strings -af ../../busybox > bar
+set +e
+test ! -f foo -a -f bar
+if [ $? = 0 ] ; then
+	set -e
+	diff -q foo bar
+fi
+BB_TEST_EOF_strings_1
+
+exit $FAILCOUNT

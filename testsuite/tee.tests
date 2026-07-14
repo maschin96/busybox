@@ -1,0 +1,20 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/tee/ directory.
+testing_script "tee-appends-input" <<'BB_TEST_EOF_tee_1'
+echo i\'m a little teapot >foo
+cp foo bar
+echo i\'m a little teapot >>foo
+echo i\'m a little teapot | busybox tee -a bar >/dev/null
+cmp foo bar
+BB_TEST_EOF_tee_1
+testing_script "tee-tees-input" <<'BB_TEST_EOF_tee_2'
+echo i\'m a little teapot >foo
+echo i\'m a little teapot | busybox tee bar >baz
+cmp foo bar && cmp foo baz
+BB_TEST_EOF_tee_2
+
+exit $FAILCOUNT

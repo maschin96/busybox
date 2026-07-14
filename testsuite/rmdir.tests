@@ -1,0 +1,13 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/rmdir/ directory.
+testing_script "rmdir-removes-parent-directories" <<'BB_TEST_EOF_rmdir_1'
+mkdir -p foo/bar
+busybox rmdir -p foo/bar
+test ! -d foo
+BB_TEST_EOF_rmdir_1
+
+exit $FAILCOUNT

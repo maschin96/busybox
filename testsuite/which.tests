@@ -1,0 +1,14 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/which/ directory.
+testing_script "which-uses-default-path" <<'BB_TEST_EOF_which_1'
+BUSYBOX=$(command -v busybox)
+SAVED_PATH=$PATH
+unset PATH
+$BUSYBOX which ls
+BB_TEST_EOF_which_1
+
+exit $FAILCOUNT

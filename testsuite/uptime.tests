@@ -1,0 +1,11 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/uptime/ directory.
+testing_script "uptime-works" <<'BB_TEST_EOF_uptime_1'
+busybox uptime
+BB_TEST_EOF_uptime_1
+
+exit $FAILCOUNT

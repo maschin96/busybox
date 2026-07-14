@@ -4,6 +4,7 @@
 
 . ./testing.sh
 a="taskset"
+test -n "$SHELL" || SHELL=/bin/sh
 
 # testing "test name"              "opts" "expected result" "file inp" "stdin"
 testing "taskset (get from pid 1)" "$a -p 1 >/dev/null;echo \$?" "0\n" "" ""

@@ -69,4 +69,17 @@ testing "xargs -I skips empty lines and leading whitespace" \
 
 SKIP=
 
+
+# Migrated from the former testsuite/xargs/ directory.
+optional FEATURE_XARGS_SUPPORT_ZERO_TERM
+testing_script "xargs-works" <<'BB_TEST_EOF_xargs_1'
+# FEATURE: CONFIG_FEATURE_XARGS_SUPPORT_ZERO_TERM
+
+[ -n "$d" ] || d=..
+find "$d" -name \*works -type f -print0 | xargs -0 md5sum > logfile.gnu
+find "$d" -name \*works -type f -print0 | busybox xargs -0 md5sum > logfile.bb
+diff -u logfile.gnu logfile.bb
+BB_TEST_EOF_xargs_1
+SKIP=
+
 exit $FAILCOUNT

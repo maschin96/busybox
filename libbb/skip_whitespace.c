@@ -35,3 +35,26 @@ char* FAST_FUNC skip_dev_pfx(const char *tty_name)
 	char *unprefixed = is_prefixed_with(tty_name, "/dev/");
 	return unprefixed ? unprefixed : (char*)tty_name;
 }
+
+#if ENABLE_UNIT_TEST
+
+BBUNIT_DEFINE_TEST(skip_whitespace_boundaries)
+{
+	BBUNIT_ASSERT_STREQ("word", skip_whitespace(" \t\n\v\f\rword"));
+	BBUNIT_ASSERT_STREQ("", skip_whitespace(" \t\n\v\f\r"));
+	BBUNIT_ASSERT_STREQ(" word", skip_non_whitespace("word word"));
+	BBUNIT_ASSERT_STREQ("", skip_non_whitespace(""));
+
+	BBUNIT_ENDTEST;
+}
+
+BBUNIT_DEFINE_TEST(skip_dev_prefix)
+{
+	BBUNIT_ASSERT_STREQ("tty0", skip_dev_pfx("/dev/tty0"));
+	BBUNIT_ASSERT_STREQ("tty0", skip_dev_pfx("tty0"));
+	BBUNIT_ASSERT_STREQ("", skip_dev_pfx("/dev/"));
+
+	BBUNIT_ENDTEST;
+}
+
+#endif /* ENABLE_UNIT_TEST */

@@ -1,0 +1,79 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/du/ directory.
+optional FEATURE_HUMAN_READABLE
+testing_script "du-h-works" <<'BB_TEST_EOF_du_1'
+# FEATURE: CONFIG_FEATURE_HUMAN_READABLE
+
+dd if=/dev/zero of=file bs=1M count=1 2>/dev/null
+test x"`busybox du -h file`" = x"1.0M	file"
+BB_TEST_EOF_du_1
+SKIP=
+testing_script "du-k-works" <<'BB_TEST_EOF_du_2'
+mkdir du.testdir
+cd du.testdir
+dd if=/dev/zero of=file1 bs=1k count=64 2>/dev/null
+dd if=/dev/zero of=file2 bs=1k count=16 2>/dev/null
+# ext4 on images <512M gives 81kb
+# ext3 on images <512M gives 83kb
+# a bsd system reportedly gives 82kb
+test x"`busybox du -k .`" = x"80	." \
+  -o x"`busybox du -k .`" = x"81	." \
+  -o x"`busybox du -k .`" = x"82	." \
+  -o x"`busybox du -k .`" = x"83	." \
+  -o x"`busybox du -k .`" = x"84	." \
+  -o x"`busybox du -k .`" = x"88	."
+BB_TEST_EOF_du_2
+optional FEATURE_DU_DEFAULT_BLOCKSIZE_1K
+testing_script "du-l-works" <<'BB_TEST_EOF_du_3'
+# FEATURE: CONFIG_FEATURE_DU_DEFAULT_BLOCKSIZE_1K
+
+mkdir du.testdir
+cd du.testdir
+dd if=/dev/zero of=file1 bs=1k count=64 2>/dev/null
+ln file1 file1.1
+dd if=/dev/zero of=file2 bs=1k count=16 2>/dev/null
+test x"`busybox du -l .`" = x"144	." \
+  -o x"`busybox du -l .`" = x"146	." \
+  -o x"`busybox du -l .`" = x"148	." \
+  -o x"`busybox du -l .`" = x"152	." \
+  -o x"`busybox du -l .`" = x"156	."
+BB_TEST_EOF_du_3
+SKIP=
+optional FEATURE_HUMAN_READABLE
+testing_script "du-m-works" <<'BB_TEST_EOF_du_4'
+# FEATURE: CONFIG_FEATURE_HUMAN_READABLE
+
+dd if=/dev/zero of=file bs=1M count=1 2>/dev/null
+test x"`busybox du -m file`" = x"1	file"
+BB_TEST_EOF_du_4
+SKIP=
+optional FEATURE_DU_DEFAULT_BLOCKSIZE_1K
+testing_script "du-s-works" <<'BB_TEST_EOF_du_5'
+# FEATURE: CONFIG_FEATURE_DU_DEFAULT_BLOCKSIZE_1K
+
+d=/bin
+du -s "$d" > logfile.gnu
+busybox du -s "$d" > logfile.bb
+cmp logfile.gnu logfile.bb && exit 0
+diff -u logfile.gnu logfile.bb
+exit 1
+BB_TEST_EOF_du_5
+SKIP=
+optional FEATURE_DU_DEFAULT_BLOCKSIZE_1K
+testing_script "du-works" <<'BB_TEST_EOF_du_6'
+# FEATURE: CONFIG_FEATURE_DU_DEFAULT_BLOCKSIZE_1K
+
+d=/bin
+du "$d" > logfile.gnu
+busybox du "$d" > logfile.bb
+cmp logfile.gnu logfile.bb && exit 0
+diff -u logfile.gnu logfile.bb
+exit 1
+BB_TEST_EOF_du_6
+SKIP=
+
+exit $FAILCOUNT

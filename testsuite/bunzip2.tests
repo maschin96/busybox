@@ -1,6 +1,8 @@
 #!/bin/sh
 # Used by both gunzip and bunzip2 tests
 
+. ./testing.sh
+
 FAILCOUNT=0
 
 if test "${0##*/}" = "gunzip.tests"; then
@@ -570,4 +572,18 @@ if test "${0##*/}" = "bunzip2.tests"; then
     fi
 fi
 
-exit $((FAILCOUNT <= 255 ? FAILCOUNT : 255))
+
+# Migrated from the former testsuite/bunzip2/ directory. This file is sourced
+# by gunzip.tests, so only run these applet-specific cases for bunzip2.
+if test "$unpack" = bunzip2; then
+testing_script "bunzip2-reads-from-standard-input" <<'BB_TEST_EOF_bunzip2_1'
+echo foo | bzip2 | busybox bunzip2 > output
+echo foo | cmp - output
+BB_TEST_EOF_bunzip2_1
+testing_script "bunzip2-removes-compressed-file" <<'BB_TEST_EOF_bunzip2_2'
+echo foo | bzip2 >foo.bz2
+busybox bunzip2 foo.bz2
+test ! -f foo.bz2
+BB_TEST_EOF_bunzip2_2
+exit $FAILCOUNT
+fi

@@ -22,4 +22,23 @@ testing "tail: -c +N with largish N" \
 	"8185\n8177\n" \
 	"" ""
 
+
+# Migrated from the former testsuite/tail/ directory.
+testing_script "tail-n-works" <<'BB_TEST_EOF_tail_1'
+$ECHO -ne "abc\ndef\n123\n" >input
+$ECHO -ne "def\n123\n" >logfile.ok
+busybox tail -n 2 input > logfile.bb
+cmp logfile.ok logfile.bb
+BB_TEST_EOF_tail_1
+optional INCLUDE_SUSv2
+testing_script "tail-works" <<'BB_TEST_EOF_tail_2'
+# FEATURE: CONFIG_INCLUDE_SUSv2
+
+$ECHO -ne "abc\ndef\n123\n" >input
+$ECHO -ne "def\n123\n" >logfile.ok
+busybox tail -2 input > logfile.bb
+cmp logfile.ok logfile.bb
+BB_TEST_EOF_tail_2
+SKIP=
+
 exit $FAILCOUNT

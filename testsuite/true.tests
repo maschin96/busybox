@@ -1,0 +1,14 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/true/ directory.
+testing_script "true-is-silent" <<'BB_TEST_EOF_true_1'
+busybox true 2>&1 | cmp - /dev/null
+BB_TEST_EOF_true_1
+testing_script "true-returns-success" <<'BB_TEST_EOF_true_2'
+busybox true
+BB_TEST_EOF_true_2
+
+exit $FAILCOUNT

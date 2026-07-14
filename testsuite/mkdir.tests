@@ -1,0 +1,16 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/mkdir/ directory.
+testing_script "mkdir-makes-a-directory" <<'BB_TEST_EOF_mkdir_1'
+busybox mkdir foo
+test -d foo
+BB_TEST_EOF_mkdir_1
+testing_script "mkdir-makes-parent-directories" <<'BB_TEST_EOF_mkdir_2'
+busybox mkdir -p foo/bar
+test -d foo -a -d foo/bar
+BB_TEST_EOF_mkdir_2
+
+exit $FAILCOUNT

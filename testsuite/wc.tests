@@ -1,0 +1,24 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/wc/ directory.
+testing_script "wc-counts-all" <<'BB_TEST_EOF_wc_1'
+# 1 line, 4 words, 20 chars.
+test "`echo i\'m a little teapot | busybox wc | sed 's/  */ /g' | sed 's/^ //'`" = '1 4 20'
+BB_TEST_EOF_wc_1
+testing_script "wc-counts-characters" <<'BB_TEST_EOF_wc_2'
+test `echo i\'m a little teapot | busybox wc -c` -eq 20
+BB_TEST_EOF_wc_2
+testing_script "wc-counts-lines" <<'BB_TEST_EOF_wc_3'
+test `echo i\'m a little teapot | busybox wc -l` -eq 1
+BB_TEST_EOF_wc_3
+testing_script "wc-counts-words" <<'BB_TEST_EOF_wc_4'
+test `echo i\'m a little teapot | busybox wc -w` -eq 4
+BB_TEST_EOF_wc_4
+testing_script "wc-prints-longest-line-length" <<'BB_TEST_EOF_wc_5'
+test `echo i\'m a little teapot | busybox wc -L` -eq 19
+BB_TEST_EOF_wc_5
+
+exit $FAILCOUNT

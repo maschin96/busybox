@@ -48,3 +48,18 @@ Running the unit test suite
 
 To run the tests you can either directly run 'busybox unit' or use 'make test'
 to run both the unit tests (if compiled) and regular test suite.
+
+Repository-local compilation must remain inside Dockerfile.build. Run
+'scripts/docker-libbb-unit-tests.sh' from the source root for the documented
+containerized entry point. It creates an allnoconfig build with BUSYBOX and
+UNIT_TEST enabled, then executes 'busybox unit'.
+
+The representative libbb groups include:
+
+* pure string boundary and prefix/suffix transformations;
+* whitespace and /dev/ prefix parsing, including empty input;
+* descriptor I/O through full_write(), including a pipe success path and an
+  isolated EBADF error path.
+
+All test-only registrations remain guarded by ENABLE_UNIT_TEST and therefore
+do not change production builds.

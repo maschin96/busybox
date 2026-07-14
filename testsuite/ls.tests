@@ -265,4 +265,47 @@ test x"$CONFIG_FEATURE_LS_SORTFILES" = x"y" \
 # Clean up
 rm -rf ls.testdir 2>/dev/null
 
+
+# Migrated from the former testsuite/ls/ directory.
+optional FEATURE_LS_SORTFILES
+testing_script "ls-1-works" <<'BB_TEST_EOF_ls_1'
+# FEATURE: CONFIG_FEATURE_LS_SORTFILES
+
+[ -n "$d" ] || d=..
+LC_ALL=C ls -1 "$d" > logfile.gnu
+LC_ALL=C busybox ls -1 "$d" > logfile.bb
+diff -ubw logfile.gnu logfile.bb
+BB_TEST_EOF_ls_1
+SKIP=
+optional FEATURE_LS_SORTFILES FEATURE_HUMAN_READABLE
+testing_script "ls-h-works" <<'BB_TEST_EOF_ls_2'
+# FEATURE: CONFIG_FEATURE_LS_SORTFILES CONFIG_FEATURE_HUMAN_READABLE
+
+[ -n "$d" ] || d=..
+LC_ALL=C ls -h "$d" > logfile.gnu
+LC_ALL=C busybox ls -h "$d" > logfile.bb
+diff -ubw logfile.gnu logfile.bb
+BB_TEST_EOF_ls_2
+SKIP=
+testing_script "ls-l-works" <<'BB_TEST_EOF_ls_3'
+test x"$SKIP_KNOWN_BUGS" != x"" && exit
+
+# busybox does not emit "total NNN" line
+
+[ -n "$d" ] || d=..
+LC_ALL=C ls -l "$d" > logfile.gnu
+LC_ALL=C busybox ls -l "$d" > logfile.bb
+diff -ubw logfile.gnu logfile.bb
+BB_TEST_EOF_ls_3
+testing_script "ls-s-works" <<'BB_TEST_EOF_ls_4'
+test x"$SKIP_KNOWN_BUGS" != x"" && exit
+
+# busybox does not emit "total NNN" line
+
+[ -n "$d" ] || d=..
+LC_ALL=C ls -1s "$d" > logfile.gnu
+LC_ALL=C busybox ls -1s "$d" > logfile.bb
+diff -ubw logfile.gnu logfile.bb
+BB_TEST_EOF_ls_4
+
 exit $FAILCOUNT

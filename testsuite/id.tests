@@ -1,0 +1,20 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/id/ directory.
+testing_script "id-g-works" <<'BB_TEST_EOF_id_1'
+test x$(id -g) = x$(busybox id -g)
+BB_TEST_EOF_id_1
+testing_script "id-u-works" <<'BB_TEST_EOF_id_2'
+test x$(id -u) = x$(busybox id -u)
+BB_TEST_EOF_id_2
+testing_script "id-un-works" <<'BB_TEST_EOF_id_3'
+test x$(id -un) = x$(busybox id -un)
+BB_TEST_EOF_id_3
+testing_script "id-ur-works" <<'BB_TEST_EOF_id_4'
+test x$(id -ur) = x$(busybox id -ur)
+BB_TEST_EOF_id_4
+
+exit $FAILCOUNT

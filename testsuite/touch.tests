@@ -1,0 +1,21 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/touch/ directory.
+testing_script "touch-creates-file" <<'BB_TEST_EOF_touch_1'
+busybox touch foo
+test -f foo
+BB_TEST_EOF_touch_1
+testing_script "touch-does-not-create-file" <<'BB_TEST_EOF_touch_2'
+busybox touch -c foo
+test ! -f foo
+BB_TEST_EOF_touch_2
+testing_script "touch-touches-files-after-non-existent-file" <<'BB_TEST_EOF_touch_3'
+touch -t 198001010000 bar
+busybox touch -c foo bar
+test x"`find bar -mtime -1`" = xbar
+BB_TEST_EOF_touch_3
+
+exit $FAILCOUNT

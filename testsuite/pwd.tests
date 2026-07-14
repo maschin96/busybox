@@ -1,0 +1,14 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/pwd/ directory.
+testing_script "pwd-prints-working-directory" <<'BB_TEST_EOF_pwd_1'
+# shell's $PWD may leave symlinks unresolved.
+# "pwd" may be a built-in and have the same problem.
+# External pwd _can't_ have that problem (current dir on Unix is physical).
+test "$(`which pwd`)" = "$(busybox pwd)"
+BB_TEST_EOF_pwd_1
+
+exit $FAILCOUNT

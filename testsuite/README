@@ -1,9 +1,12 @@
-To run the test suite, change to this directory and run "./runtest".  It will
-run all of the test cases, and list those with unexpected outcomes.  Adding the
--v option will cause it to show expected outcomes as well.  To only run the test
-cases for particular applets:
+To run the test suite, change to this directory and run "./runtest". It runs
+all test cases and lists unexpected outcomes. Adding the -v option shows
+failure details. To run only particular applets:
 
 ./runtest <applet1> <applet2>...
+
+Repository-local builds and tests must use Dockerfile.build. From the source
+root, scripts/docker-testsuite.sh builds a defconfig BusyBox and runs this
+suite in the build container.
 
 Set SKIP_KNOWN_BUGS environment variable to any non-empty value
 to exclude tests which are known to fail.
@@ -23,14 +26,15 @@ LANG and LC_xxx environment variables set to non-C locale.
 
 Developer's notes:
 
-The test cases for an applet reside in the subdirectory of the applet name.
-The name of the test case should be the assertion that is tested.
-The test case should be a shell fragment that returns successfully
-if the test case passes, and unsuccessfully otherwise.
+All applet tests reside in files named command.tests and source testing.sh.
+Use testing() when stdout and an exit status describe the assertion. Use
+testing_script() with a here document for a multi-command test whose success
+is determined by shell assertions. testing_script() runs every case in a new
+temporary directory and removes it afterwards.
 
-If the test case relies on a certain feature, it should include the string
-"FEATURE: " followed by the name of the feature in a comment.  If it is always
-expected to fail, it should include the string "XFAIL" in a comment.
+Use optional FEATURE_NAME before a test which needs a Kconfig feature and
+reset SKIP afterwards. Tests that need the network should honor
+SKIP_INTERNET_TESTS; known-bug cases should honor SKIP_KNOWN_BUGS.
 
 
 For the entire testsuite, the copyright is as follows:

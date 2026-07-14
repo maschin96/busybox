@@ -120,4 +120,12 @@ testing "zcat can handle compressed zero-length (.Z) files" \
 
 
 
-exit $((FAILCOUNT <= 255 ? FAILCOUNT : 255))
+
+# Migrated from the former testsuite/bzcat/ directory.
+testing_script "bzcat-does-not-remove-compressed-file" <<'BB_TEST_EOF_bzcat_1'
+echo foo | bzip2 >foo.bz2
+busybox bzcat foo.bz2
+test -f foo.bz2
+BB_TEST_EOF_bzcat_1
+
+exit $FAILCOUNT

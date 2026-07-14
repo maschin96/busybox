@@ -1,0 +1,30 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/gzip/ directory.
+testing_script "gzip-accepts-multiple-files" <<'BB_TEST_EOF_gzip_1'
+touch foo bar
+busybox gzip foo bar
+test -f foo.gz -a -f bar.gz
+BB_TEST_EOF_gzip_1
+testing_script "gzip-accepts-single-minus" <<'BB_TEST_EOF_gzip_2'
+echo foo | busybox gzip - >/dev/null
+BB_TEST_EOF_gzip_2
+optional FEATURE_GZIP_LEVELS
+testing_script "gzip-compression-levels" <<'BB_TEST_EOF_gzip_3'
+# FEATURE: CONFIG_FEATURE_GZIP_LEVELS
+
+level1=$(busybox gzip -c -1 $(which busybox) | wc -c)
+level9=$(busybox gzip -c -9 $(which busybox) | wc -c)
+test $level1 -gt $level9
+BB_TEST_EOF_gzip_3
+SKIP=
+testing_script "gzip-removes-original-file" <<'BB_TEST_EOF_gzip_4'
+touch foo
+busybox gzip foo
+test ! -f foo
+BB_TEST_EOF_gzip_4
+
+exit $FAILCOUNT

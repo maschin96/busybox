@@ -1,0 +1,14 @@
+#!/bin/sh
+# Licensed under GPLv2, see file LICENSE in this source tree.
+
+. ./testing.sh
+
+# Migrated from the former testsuite/basename/ directory.
+testing_script "basename-does-not-remove-identical-extension" <<'BB_TEST_EOF_basename_1'
+test xfoo = x`busybox basename foo foo`
+BB_TEST_EOF_basename_1
+testing_script "basename-works" <<'BB_TEST_EOF_basename_2'
+test x$(basename $(pwd)) = x$(busybox basename $(pwd))
+BB_TEST_EOF_basename_2
+
+exit $FAILCOUNT
