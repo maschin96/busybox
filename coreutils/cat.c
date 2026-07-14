@@ -72,6 +72,15 @@
 #include "libbb.h"
 #include "common_bufsiz.h"
 
+#if ENABLE_FEATURE_RUST_APPLETS && !ENABLE_FEATURE_CATV && !ENABLE_FEATURE_CATN
+int cat_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int rust_cat_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+int cat_main(int argc, char **argv)
+{
+	return rust_cat_main(argc, argv);
+}
+#else
+
 #if ENABLE_FEATURE_CATV
 /*
  * cat -v implementation for busybox
@@ -215,3 +224,4 @@ int cat_main(int argc UNUSED_PARAM, char **argv)
 
 	return bb_cat(argv);
 }
+#endif

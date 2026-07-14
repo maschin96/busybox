@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BUILD_DIR = REPO_ROOT / "build" / "rust-compare"
 APPLETS = {
     "basename": "BASENAME",
+    "cat": "CAT",
     "dirname": "DIRNAME",
     "false": "FALSE",
     "pwd": "PWD",
@@ -36,6 +37,8 @@ class Case:
     name: str
     args: tuple[str, ...] = ()
     symlink: bool = False
+    stdin: bytes | None = None
+    broken_pipe: bool = False
 
 
 @dataclass(frozen=True)
@@ -183,6 +186,18 @@ def applet_cases(applets: list[str]) -> list[Case]:
         elif applet == "pwd":
             cases.append(Case(applet=applet, name="direct"))
             cases.append(Case(applet=applet, name="symlink", symlink=True))
+        elif applet == "cat":
+            cases.extend(
+                [
+                    Case(applet=applet, name="stdin", stdin=b"from stdin\n"),
+                    Case(applet=applet, name="one-file", args=("one",)),
+                    Case(applet=applet, name="multiple-files", args=("one", "two")),
+                    Case(applet=applet, name="file-and-stdin", args=("one", "-"), stdin=b"tail\n"),
+                    Case(applet=applet, name="missing", args=("missing",)),
+                    Case(applet=applet, name="broken-pipe", args=("large",), broken_pipe=True),
+                    Case(applet=applet, name="symlink", args=("one",), symlink=True),
+                ]
+            )
     return cases
 
 
@@ -199,7 +214,24 @@ def run_case(binary: Path, case: Case, link_dir: Path) -> Result:
     else:
         argv = [str(binary), case.applet, *case.args]
 
-    completed = subprocess.run(argv, env=env, capture_output=True, check=False)
+    if case.broken_pipe:
+        read_fd, write_fd = os.pipe()
+        process = subprocess.Popen(
+            argv,
+            cwd=link_dir,
+            env=env,
+            stdin=subprocess.PIPE if case.stdin is not None else subprocess.DEVNULL,
+            stdout=write_fd,
+            stderr=subprocess.PIPE,
+        )
+        os.close(write_fd)
+        os.close(read_fd)
+        _, stderr = process.communicate(case.stdin)
+        return Result(process.returncode, b"", stderr)
+
+    completed = subprocess.run(
+        argv, cwd=link_dir, env=env, input=case.stdin, capture_output=True, check=False
+    )
     return Result(completed.returncode, completed.stdout, completed.stderr)
 
 
@@ -277,6 +309,10 @@ def main(argv: list[str]) -> int:
     shutil.rmtree(tmp_dir, ignore_errors=True)
     (tmp_dir / "c-links").mkdir(parents=True)
     (tmp_dir / "rust-links").mkdir(parents=True)
+    for directory in (tmp_dir / "c-links", tmp_dir / "rust-links"):
+        (directory / "one").write_bytes(b"first\n")
+        (directory / "two").write_bytes(b"second\n")
+        (directory / "large").write_bytes(b"x" * (1024 * 1024))
 
     failures = 0
     for case in applet_cases(applets):

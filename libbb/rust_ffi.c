@@ -24,6 +24,11 @@ int bb_rust_open_input(const char *path)
 	return open_or_warn_stdin(path);
 }
 
+int bb_rust_copy_to_stdout(int fd)
+{
+	return bb_copyfd_eof(fd, STDOUT_FILENO) < 0 ? -1 : 0;
+}
+
 ssize_t bb_rust_full_write(int fd, const void *buffer, size_t length)
 {
 	return full_write(fd, buffer, length);

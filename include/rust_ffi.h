@@ -15,6 +15,7 @@ void bb_rust_error_msg(const char *message);
 void bb_rust_perror_msg(const char *message);
 
 int bb_rust_open_input(const char *path);
+int bb_rust_copy_to_stdout(int fd);
 ssize_t bb_rust_full_write(int fd, const void *buffer, size_t length);
 int bb_rust_close(int fd);
 

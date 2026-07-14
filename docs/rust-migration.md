@@ -137,6 +137,9 @@ Current status:
   `FEATURE_RUST_APPLETS`. The Rust paths are intentionally registered as normal
   applets, not NOFORK, while allocator, stdio, panic, and process-global-state
   behavior are still being reviewed.
+- `cat` has an opt-in Rust implementation for plain concatenation mode.
+  Configurations enabling `FEATURE_CATN` or `FEATURE_CATV` retain the C path,
+  keeping this Rust slice focused on stdin, files, descriptors, and errors.
 
 ## Verification expectations
 

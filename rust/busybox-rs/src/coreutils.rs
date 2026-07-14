@@ -1,5 +1,5 @@
 use core::ffi::{c_char, c_int};
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 
 use crate::ffi::run_applet;
 use crate::ffi::RawArgv;
@@ -36,6 +36,50 @@ pub unsafe extern "C" fn rust_dirname_main(argc: c_int, argv: *mut *mut c_char) 
 pub unsafe extern "C" fn rust_pwd_main(argc: c_int, argv: *mut *mut c_char) -> c_int {
     // SAFETY: BusyBox calls applet entry points with its normal argc/argv ABI.
     unsafe { run_applet(argc, argv, pwd_main) }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn rust_cat_main(argc: c_int, argv: *mut *mut c_char) -> c_int {
+    // SAFETY: BusyBox calls applet entry points with its normal argc/argv ABI.
+    unsafe { run_applet(argc, argv, cat_main) }
+}
+
+fn cat_main(argv: RawArgv) -> c_int {
+    let Some(args) = argv_bytes(argv) else {
+        return usage_error();
+    };
+    let mut files = Vec::new();
+    let mut options_done = false;
+    for arg in args.iter().skip(1) {
+        if !options_done && arg == b"--" {
+            options_done = true;
+        } else if !options_done && arg == b"-u" {
+            // BusyBox accepts the historical unbuffered option as a no-op.
+        } else if !options_done && arg.starts_with(b"-") && arg != b"-" {
+            return usage_error();
+        } else {
+            files.push(arg.as_slice());
+        }
+    }
+    if files.is_empty() {
+        files.push(b"-");
+    }
+
+    let mut status = EXIT_SUCCESS;
+    for file in files {
+        let Ok(path) = CString::new(file) else {
+            status = EXIT_FAILURE;
+            continue;
+        };
+        let Ok(input) = libbb::open_input(&path) else {
+            status = EXIT_FAILURE;
+            continue;
+        };
+        if input.copy_to_stdout().is_err() {
+            status = EXIT_FAILURE;
+        }
+    }
+    status
 }
 
 fn argv_bytes(argv: RawArgv) -> Option<Vec<Vec<u8>>> {

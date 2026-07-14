@@ -17,6 +17,7 @@ implementations live in `libbb/rust_ffi.c`, and safe Rust wrappers live in
 | `error_msg` | `bb_rust_error_msg` | `bb_error_msg("%s", ...)` | Prints a fixed-string BusyBox diagnostic. |
 | `perror_msg` | `bb_rust_perror_msg` | `bb_perror_msg("%s", ...)` | Prints a fixed-string diagnostic plus the current `errno` text. |
 | `open_input` | `bb_rust_open_input` | `open_or_warn_stdin` | Opens a named input or borrows stdin for `-`; libbb prints open failures. |
+| `InputFd::copy_to_stdout` | `bb_rust_copy_to_stdout` | `bb_copyfd_eof` | Copies input to stdout and preserves libbb read/write diagnostics. |
 | `full_write` | `bb_rust_full_write` | `full_write` | Retries interrupted writes and reports failed or partial output. |
 | `InputFd` drop | `bb_rust_close` | `close` | Closes named inputs exactly once and leaves borrowed stdin open. |
 | `current_dir` | `bb_rust_getcwd_or_warn` | `xrealloc_getcwd_or_warn` | Returns an allocated physical current directory or a diagnosed failure. |

@@ -16,6 +16,7 @@ mod raw {
         pub fn bb_rust_error_msg(message: *const c_char);
         pub fn bb_rust_perror_msg(message: *const c_char);
         pub fn bb_rust_open_input(path: *const c_char) -> c_int;
+        pub fn bb_rust_copy_to_stdout(fd: c_int) -> c_int;
         pub fn bb_rust_full_write(fd: c_int, buffer: *const c_void, length: usize) -> isize;
         pub fn bb_rust_close(fd: c_int) -> c_int;
         pub fn bb_rust_getcwd_or_warn() -> *mut c_char;
@@ -70,6 +71,21 @@ impl Drop for InputFd {
         }
     }
 }
+
+impl InputFd {
+    /// Copy this input to standard output using libbb's diagnosed copy loop.
+    pub fn copy_to_stdout(&self) -> Result<(), CopyError> {
+        // SAFETY: `self` owns or borrows a valid descriptor for this call.
+        if unsafe { raw::bb_rust_copy_to_stdout(self.fd) } < 0 {
+            Err(CopyError)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CopyError;
 
 /// Open a path for reading, treating `-` as borrowed standard input.
 ///
@@ -175,6 +191,7 @@ mod tests {
     static CLOSED_FD: AtomicI32 = AtomicI32::new(-1);
     static FREE_COUNT: AtomicUsize = AtomicUsize::new(0);
     static GETCWD_FAIL: AtomicBool = AtomicBool::new(false);
+    static COPY_FAIL: AtomicBool = AtomicBool::new(false);
     static LAST_MESSAGE: Mutex<Vec<u8>> = Mutex::new(Vec::new());
 
     fn lock() -> MutexGuard<'static, ()> {
@@ -206,6 +223,15 @@ mod tests {
             b"-" => 0,
             b"missing" => -1,
             _ => 42,
+        }
+    }
+
+    #[export_name = "bb_rust_copy_to_stdout"]
+    extern "C" fn mock_copy_to_stdout(_fd: c_int) -> c_int {
+        if COPY_FAIL.load(Ordering::SeqCst) {
+            -1
+        } else {
+            0
         }
     }
 
@@ -286,6 +312,17 @@ mod tests {
         drop(open_input(c"-").unwrap());
         assert_eq!(CLOSED_FD.load(Ordering::SeqCst), -1);
         assert!(matches!(open_input(c"missing"), Err(OpenInputError)));
+    }
+
+    #[test]
+    fn input_fd_reports_copy_failures() {
+        let _guard = lock();
+        let input = open_input(c"-").unwrap();
+        COPY_FAIL.store(false, Ordering::SeqCst);
+        assert_eq!(input.copy_to_stdout(), Ok(()));
+        COPY_FAIL.store(true, Ordering::SeqCst);
+        assert_eq!(input.copy_to_stdout(), Err(CopyError));
+        COPY_FAIL.store(false, Ordering::SeqCst);
     }
 
     #[test]

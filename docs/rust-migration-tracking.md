@@ -46,7 +46,7 @@ First-wave applets, in order:
 1. `true` - [#11](https://github.com/maschin96/busybox/issues/11), closed.
 2. `false` - [#13](https://github.com/maschin96/busybox/issues/13), closed.
 3. `basename`, `dirname`, `pwd` - [#9](https://github.com/maschin96/busybox/issues/9), closed.
-4. `cat` - [#12](https://github.com/maschin96/busybox/issues/12), open.
+4. `cat` - [#12](https://github.com/maschin96/busybox/issues/12), complete.
 5. `yes`, `whoami`, `hostid` - [#14](https://github.com/maschin96/busybox/issues/14), open.
 
 Supporting first-wave issues:
@@ -55,8 +55,8 @@ Supporting first-wave issues:
 - [#10 Binary-Size-Reporting fuer Rust-Applets einfuehren](https://github.com/maschin96/busybox/issues/10) - closed.
 - [#22 libbb-FFI-Bruecke fuer Rust-Applets definieren](https://github.com/maschin96/busybox/issues/22) - closed.
 
-Exit state: partially complete. The first wave is defined, but `cat`,
-`yes`, `whoami`, `hostid`, and the first libbb FFI wrapper surface remain open.
+Exit state: partially complete. The first wave is defined, but `yes`, `whoami`,
+and `hostid` remain open.
 
 ### M2: Build and target coverage
 
@@ -97,7 +97,7 @@ Exit state: open.
 | [#9 Path applets](https://github.com/maschin96/busybox/issues/9) | closed | M1 | #7, #15 | path behavior evidence, #20 |
 | [#10 Size reporting](https://github.com/maschin96/busybox/issues/10) | closed | M1 | #15 | #4, #20 |
 | [#11 `true`](https://github.com/maschin96/busybox/issues/11) | closed | M1 | #7 | #13, CI smoke baseline |
-| [#12 `cat`](https://github.com/maschin96/busybox/issues/12) | open | M1 | #15, #22 recommended | FD and broken-pipe evidence |
+| [#12 `cat`](https://github.com/maschin96/busybox/issues/12) | complete | M1 | #15, #22 | FD and broken-pipe evidence |
 | [#13 `false`](https://github.com/maschin96/busybox/issues/13) | closed | M1 | #7, #11 | error-path baseline |
 | [#14 stdout applets](https://github.com/maschin96/busybox/issues/14) | open | M1 | #15, #22 recommended | broader simple-output evidence |
 | [#15 C-vs-Rust comparison harness](https://github.com/maschin96/busybox/issues/15) | closed | M1 | #11, #13 | #9, #10, #12, #14 |
@@ -111,14 +111,11 @@ Exit state: open.
 
 ## Current next actions
 
-1. Complete [#12](https://github.com/maschin96/busybox/issues/12) to validate
-   the first file-reading applet, including stdin, multiple files, errors, and
-   broken-pipe behavior.
-2. Complete [#14](https://github.com/maschin96/busybox/issues/14) to broaden
+1. Complete [#14](https://github.com/maschin96/busybox/issues/14) to broaden
    simple stdout behavior beyond `true`, `false`, and path-only applets.
-3. Complete [#17](https://github.com/maschin96/busybox/issues/17) to validate
+2. Complete [#17](https://github.com/maschin96/busybox/issues/17) to validate
    explicit glibc and musl Rust targets for the Kbuild design.
-4. Use the baseline from [#4](https://github.com/maschin96/busybox/issues/4),
+3. Use the baseline from [#4](https://github.com/maschin96/busybox/issues/4),
    [#18](https://github.com/maschin96/busybox/issues/18), and
    [#20](https://github.com/maschin96/busybox/issues/20) to decide the second
    wave from measured behavior, size deltas, and risk.
