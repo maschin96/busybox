@@ -67,7 +67,7 @@ Required issues:
 - [#8 Kbuild-Integration fuer Rust-Static-Library planen](https://github.com/maschin96/busybox/issues/8) - complete; design recorded in `docs/rust-kbuild-integration.md`.
 - [#17 Cross-Compile-Support fuer Rust validieren](https://github.com/maschin96/busybox/issues/17) - complete; matrix in `docs/rust-cross-compile.md`.
 
-Exit state: open.
+Exit state: complete.
 
 ### M3: Candidate expansion
 
@@ -77,9 +77,9 @@ first applet wave.
 Required issues:
 
 - [#18 Rust-Ersatz fuer einfache libbb-Utilities evaluieren](https://github.com/maschin96/busybox/issues/18) - complete; evaluation in `docs/rust-libbb-candidates.md`.
-- [#20 Zweite Applet-Welle planen](https://github.com/maschin96/busybox/issues/20) - open.
+- [#20 Zweite Applet-Welle planen](https://github.com/maschin96/busybox/issues/20) - complete; plan in `docs/rust-second-wave.md`.
 
-Exit state: open.
+Exit state: complete.
 
 ## Issue order and dependencies
 
@@ -104,16 +104,14 @@ Exit state: open.
 | [#17 Cross-compile validation](https://github.com/maschin96/busybox/issues/17) | complete | M2 | #6, #8, #4 | target support matrix |
 | [#18 libbb-like Rust utility candidates](https://github.com/maschin96/busybox/issues/18) | complete | M3 | #9, #12, #14 | #20, future utility ports |
 | [#19 High-risk exclusions](https://github.com/maschin96/busybox/issues/19) | closed | M0 | none | scope control |
-| [#20 Second applet wave](https://github.com/maschin96/busybox/issues/20) | open | M3 | #4, #9, #10, #12, #14, #18 | next migration batch |
+| [#20 Second applet wave](https://github.com/maschin96/busybox/issues/20) | complete | M3 | #4, #9, #10, #12, #14, #18 | next migration batch |
 | [#21 Dependency policy](https://github.com/maschin96/busybox/issues/21) | closed | M0 | #6 | future crate review |
 | [#22 libbb FFI bridge](https://github.com/maschin96/busybox/issues/22) | closed | M1 | #5, #7 | #12, #14, future applets |
 
 ## Current next actions
 
-1. Use the baseline from [#4](https://github.com/maschin96/busybox/issues/4),
-   [#18](https://github.com/maschin96/busybox/issues/18), and
-   [#20](https://github.com/maschin96/busybox/issues/20) to decide the second
-   wave from measured behavior, size deltas, and risk.
+1. Execute the second wave from `docs/rust-second-wave.md`, beginning with
+   comparison tests for `printenv` and then `unlink`.
 
 ## Tracking maintenance rules
 
