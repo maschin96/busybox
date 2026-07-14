@@ -5,7 +5,7 @@ resolver = "2"
 [workspace.package]
 edition = "2021"
 license = "GPL-2.0-only"
-repository = "https://github.com/maschin96/busybox"
+repository = "https://github.com/maschin96/RustyBox"
 
 [profile.dev]
 panic = "abort"
